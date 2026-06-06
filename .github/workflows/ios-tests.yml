@@ -13,14 +13,10 @@ on:
       - 'mobile/ios/**'
   workflow_dispatch:
     inputs:
-      ios_version:
-        description: 'iOS Simulator version'
-        required: false
-        default: '17'
       device:
-        description: 'Simulator device name'
+        description: 'Simulator device name (ex: iPhone 15 Pro, iPhone 16)'
         required: false
-        default: 'iPhone 15'
+        default: 'iPhone 15 Pro'
 
 jobs:
   ios-smoke:
@@ -42,29 +38,45 @@ jobs:
 
       - name: Boot iOS Simulator
         run: |
-          DEVICE="${{ github.event.inputs.device || 'iPhone 15' }}"
-          IOS_VERSION="${{ github.event.inputs.ios_version || '17' }}"
+          DEVICE="${{ github.event.inputs.device || 'iPhone 15 Pro' }}"
 
-          # Lista simuladores disponíveis e encontra o UUID
-          UDID=$(xcrun simctl list devices available | grep "$DEVICE" | grep "iOS $IOS_VERSION" | head -1 | grep -E -o '[0-9A-F-]{36}')
+          echo "=== Simuladores disponíveis ==="
+          xcrun simctl list devices available
+
+          # simctl lista iOS version como cabeçalho de seção, não na linha do device.
+          # Estratégia: pegar o UDID do device desejado sem filtrar por versão iOS —
+          # no macos-14 runner há apenas uma versão disponível (iOS 17.x).
+          UDID=$(xcrun simctl list devices available | grep -w "$DEVICE" | head -1 | grep -Eo '[0-9A-F-]{36}')
 
           if [ -z "$UDID" ]; then
-            echo "Dispositivo não encontrado: $DEVICE iOS $IOS_VERSION"
-            echo "Simuladores disponíveis:"
+            echo "AVISO: '$DEVICE' não encontrado. Listando iPhones disponíveis:"
             xcrun simctl list devices available | grep "iPhone"
-            # Fallback: usa o primeiro iPhone disponível
-            UDID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -E -o '[0-9A-F-]{36}')
+            # Fallback: qualquer iPhone disponível
+            UDID=$(xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" | head -1 | grep -Eo '[0-9A-F-]{36}')
           fi
 
-          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
-          echo "Iniciando simulador: $UDID"
+          if [ -z "$UDID" ]; then
+            echo "ERRO: Nenhum simulador iPhone encontrado."
+            exit 1
+          fi
 
-          xcrun simctl boot "$UDID" || true
+          echo "Usando simulador UDID: $UDID"
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+
+          xcrun simctl boot "$UDID" 2>/dev/null || echo "Simulador já estava bootado"
           open -a Simulator --args -CurrentDeviceUDID "$UDID"
 
-          # Aguarda o simulador ficar pronto
-          xcrun simctl bootstatus "$UDID" -b
-          sleep 10
+          # Aguarda o simulador ficar no estado Booted
+          echo "Aguardando simulador..."
+          for i in $(seq 1 30); do
+            STATE=$(xcrun simctl list devices | grep "$UDID" | grep -o 'Booted' || true)
+            if [ "$STATE" = "Booted" ]; then
+              echo "Simulador pronto após ${i}s"
+              break
+            fi
+            sleep 2
+          done
+          sleep 5
 
       - name: Run Safari Google Search test
         run: |
@@ -101,8 +113,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Dispositivo | ${{ github.event.inputs.device || 'iPhone 15' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| iOS | ${{ github.event.inputs.ios_version || '17' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dispositivo | ${{ github.event.inputs.device || 'iPhone 15 Pro' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Simulador UDID | ${{ env.SIMULATOR_UDID }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Flow | safari_google_search.yaml |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
