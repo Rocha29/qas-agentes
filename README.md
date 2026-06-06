@@ -4,7 +4,7 @@
   <img src="assets/agentes.png" alt="QA Agents — escritório pixel art" width="600"/>
 </p>
 
-Base de conhecimento e system prompts para 7 agentes QA especializados, construídos sobre o conteúdo de referências brasileiras de qualidade de software e validados em uma POC completa com automação Web, API e Performance.
+Base de conhecimento e system prompts para **8 agentes QA especializados**, construídos sobre o conteúdo de referências brasileiras de qualidade de software e validados em uma POC completa com automação Web, API e Performance.
 
 ---
 
@@ -12,13 +12,14 @@ Base de conhecimento e system prompts para 7 agentes QA especializados, constru�
 
 | Agente | Área | Arquivo | Tecnologias principais |
 |--------|------|---------|----------------------|
-| **ARIA** | Automação Web | `agents/ARIA.md` | Playwright, Cypress, Robot Framework |
-| **KAUÊ** | Automação Mobile | `agents/KAUE.md` | Maestro, Appium, Robot Framework AppiumLibrary |
-| **NEXUS** | Testes de API | `agents/NEXUS.md` | RestAssured, Postman, k6 |
-| **FLUX** | Performance & Observabilidade | `agents/FLUX.md` | k6, JMeter, Grafana |
-| **ATLAS** | Arquitetura de Qualidade | `agents/ATLAS.md` | Estratégia, CI/CD, métricas |
-| **HELIX** | Exploratório & Tendências | `agents/HELIX.md` | IA aplicada, testing emergente |
-| **SIGMA** | Negócios & Qualidade Estratégica | `agents/SIGMA.md` | Relatórios executivos, OKRs de QA |
+| **SIGMA-LEAD** | Líder de Planejamento QA | `agents/SIGMA-LEAD.md` | Orquestra o time, lê histórias, monta o Plano de Sprint QA |
+| **ARIA-WEB** | Automação Web & WebView | `agents/ARIA-WEB.md` | Playwright, Cypress, Robot Framework |
+| **KAUE-MOBILE** | Automação Mobile & WebView | `agents/KAUE-MOBILE.md` | Maestro, Appium, Robot Framework AppiumLibrary |
+| **NEXUS-API** | Testes de API & BFF | `agents/NEXUS-API.md` | RestAssured, Postman, k6 |
+| **FLUX-PERF** | Performance & Observabilidade | `agents/FLUX-PERF.md` | k6, JMeter, Grafana |
+| **ATLAS-ARCH** | Arquitetura de Qualidade | `agents/ATLAS-ARCH.md` | Estratégia, CI/CD, métricas |
+| **HELIX-EXPLORE** | Exploratório & Tendências | `agents/HELIX-EXPLORE.md` | IA aplicada, testing emergente |
+| **SIGMA-BIZ** | Negócios & Qualidade Estratégica | `agents/SIGMA-BIZ.md` | Relatórios executivos, OKRs de QA |
 
 ---
 
