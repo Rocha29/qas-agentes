@@ -1,0 +1,58 @@
+appId: com.apple.mobilesafari
+---
+# Abre o Safari, navega para o Google e pesquisa por "nekalst"
+
+- launchApp:
+    clearState: true
+
+# Aguarda o Safari carregar completamente
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Toca na barra de endereço/pesquisa do Safari
+- tapOn:
+    id: "TabBarItemTitle"
+    optional: true
+- tapOn:
+    text: "Search or enter website name"
+    optional: true
+- tapOn:
+    text: "Pesquisar ou inserir o endereço"
+    optional: true
+
+# Digita a URL do Google
+- inputText: "https://www.google.com"
+- pressKey: Return
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Aceita cookies/popup do Google se aparecer
+- tapOn:
+    text: "Aceitar tudo"
+    optional: true
+- tapOn:
+    text: "Accept all"
+    optional: true
+
+# Localiza o campo de pesquisa do Google e digita
+- tapOn:
+    id: "q"
+    optional: true
+- tapOn:
+    text: "Pesquisar"
+    optional: true
+- tapOn:
+    text: "Google Search"
+    optional: true
+- clearText
+- inputText: "nekalst"
+- pressKey: Return
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Valida que os resultados foram carregados
+- assertVisible:
+    text: "nekalst"
+- takeScreenshot: google_search_result_nekalst

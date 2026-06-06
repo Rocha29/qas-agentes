@@ -1,0 +1,137 @@
+name: iOS Tests — KAUE-MOBILE (Maestro)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/ios/**'
+      - 'agents/KAUE-MOBILE.md'
+      - '.github/workflows/ios-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mobile/ios/**'
+  workflow_dispatch:
+    inputs:
+      ios_version:
+        description: 'iOS Simulator version'
+        required: false
+        default: '17'
+      device:
+        description: 'Simulator device name'
+        required: false
+        default: 'iPhone 15'
+
+jobs:
+  ios-smoke:
+    name: iOS Safari — Google Search (Maestro)
+    runs-on: macos-14           # Apple Silicon — único runner com simulador iOS
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Boot iOS Simulator
+        run: |
+          DEVICE="${{ github.event.inputs.device || 'iPhone 15' }}"
+          IOS_VERSION="${{ github.event.inputs.ios_version || '17' }}"
+
+          # Lista simuladores disponíveis e encontra o UUID
+          UDID=$(xcrun simctl list devices available | grep "$DEVICE" | grep "iOS $IOS_VERSION" | head -1 | grep -E -o '[0-9A-F-]{36}')
+
+          if [ -z "$UDID" ]; then
+            echo "Dispositivo não encontrado: $DEVICE iOS $IOS_VERSION"
+            echo "Simuladores disponíveis:"
+            xcrun simctl list devices available | grep "iPhone"
+            # Fallback: usa o primeiro iPhone disponível
+            UDID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -E -o '[0-9A-F-]{36}')
+          fi
+
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+          echo "Iniciando simulador: $UDID"
+
+          xcrun simctl boot "$UDID" || true
+          open -a Simulator --args -CurrentDeviceUDID "$UDID"
+
+          # Aguarda o simulador ficar pronto
+          xcrun simctl bootstatus "$UDID" -b
+          sleep 10
+
+      - name: Run Safari Google Search test
+        run: |
+          maestro test mobile/ios/maestro/flows/safari_google_search.yaml \
+            --device "${{ env.SIMULATOR_UDID }}" \
+            --format junit \
+            --output test-results/ios-results.xml
+        env:
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 60000
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-maestro-results-${{ github.run_number }}
+          path: |
+            test-results/
+            ~/.maestro/tests/
+          retention-days: 14
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: iOS Maestro Results
+          path: test-results/ios-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## KAUE-MOBILE — iOS Maestro Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dispositivo | ${{ github.event.inputs.device || 'iPhone 15' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS | ${{ github.event.inputs.ios_version || '17' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Simulador UDID | ${{ env.SIMULATOR_UDID }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flow | safari_google_search.yaml |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f test-results/ios-results.xml ]; then
+            echo "Resultados disponíveis no artifact: \`ios-maestro-results-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Arquivo de resultados não encontrado." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Job opcional — Maestro Cloud (dispositivo real iOS, acionado manualmente)
+  ios-cloud:
+    name: iOS Real Device — Maestro Cloud
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && vars.USE_MAESTRO_CLOUD == 'true'
+    needs: ios-smoke
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Upload and run on Maestro Cloud (iOS)
+        run: |
+          maestro cloud \
+            --apiKey "${{ secrets.MAESTRO_CLOUD_API_KEY }}" \
+            --ios-version 17 \
+            mobile/ios/maestro/flows/safari_google_search.yaml
