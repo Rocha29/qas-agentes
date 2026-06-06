@@ -18,17 +18,78 @@ Base de conhecimento e system prompts para 7 agentes QA especializados, constru�
 
 ---
 
-## Como Ativar um Agente
+## Como Usar os Agentes
+
+### Claude Code (CLI)
 
 ```bash
-# Ativar diretamente no Claude Code CLI
-claude --system-prompt agents/ARIA.md
+# Ativar um agente em qualquer projeto existente
+claude --system-prompt /caminho/para/qa-agents/agents/ARIA.md
 
-# Ou carregar como contexto dentro de uma sessão
-cat agents/NEXUS.md | pbcopy   # macOS — cole no campo de system prompt
+# Exemplo real dentro do seu projeto
+claude --system-prompt ~/qa-agents/agents/NEXUS.md "Revise os testes de API deste projeto"
 ```
 
-Consulte `USAGE.md` para a matriz completa de decisão (qual agente para qual tarefa) e checklists de validação por agente.
+---
+
+### GitHub Copilot — receita de bolo
+
+**Funciona em:** VS Code, JetBrains, Visual Studio, GitHub.com, GitHub Mobile.
+
+**Passo a passo:**
+
+1. No projeto onde você quer o agente, crie a pasta `.github/` se não existir
+2. Crie o arquivo `.github/copilot-instructions.md`
+3. Cole o conteúdo do agente desejado (ex: `agents/ARIA.md`) nesse arquivo
+4. Pronto — o Copilot Chat vai seguir o persona em todas as conversas do repo
+
+```bash
+# Exemplo: ativar ARIA (Web) em um projeto existente
+mkdir -p meu-projeto/.github
+cp ~/qa-agents/agents/ARIA.md meu-projeto/.github/copilot-instructions.md
+```
+
+**Dica importante:** O Copilot Code Review lê apenas os primeiros **4.000 caracteres** do arquivo. Se o prompt do agente for longo, coloque as instruções mais críticas no topo.
+
+O arquivo `.github/copilot-instructions.md` é enviado automaticamente em toda mensagem do Copilot Chat — funciona como um system prompt persistente para o repositório.
+
+---
+
+### Devin (Cognition AI) — receita de bolo
+
+> Não existe um "Devin CLI" oficial. O mecanismo correto é via **Playbook** (para tarefas repetidas) ou **Knowledge** (para contexto permanente de repo).
+
+#### Opção 1 — Playbook (recomendado para tarefas QA específicas)
+
+1. Acesse [preview.devin.ai](https://preview.devin.ai) → **Playbooks** → **New Playbook**
+2. Cole o conteúdo do agente desejado (ex: `agents/FLUX.md`) no campo de instruções
+3. Dê um nome (ex: `QA Performance — FLUX`) e salve
+4. Na hora de usar: no prompt box, digite `!` e selecione o Playbook
+
+**Alternativa rápida:** salve o conteúdo do agente como `flux-playbook.md` e arraste o arquivo para o chat do Devin ao iniciar uma sessão.
+
+#### Opção 2 — Knowledge (contexto permanente por repo)
+
+1. Acesse **Knowledge** → **New Knowledge**
+2. Cole o conteúdo do agente
+3. Em **Scope**, selecione o repositório específico onde quer que o agente seja sempre injetado
+4. Salve — o Devin vai usar esse contexto automaticamente em todas as sessões daquele repo
+
+---
+
+### Qual agente usar em cada situação?
+
+| Situação | Agente recomendado |
+|----------|--------------------|
+| Escrever/revisar testes E2E Web | ARIA |
+| Testar APIs REST / contratos | NEXUS |
+| Testes mobile (Android/iOS) | KAUÊ |
+| Performance e carga | FLUX |
+| Definir estratégia de QA | ATLAS |
+| Exploratório, edge cases | HELIX |
+| Relatório executivo / métricas | SIGMA |
+
+Consulte `USAGE.md` para a matriz completa de decisão e checklists de validação por agente.
 
 ---
 
