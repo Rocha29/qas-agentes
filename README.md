@@ -98,87 +98,137 @@ Consulte `USAGE.md` para a matriz completa de decisão e checklists de validaç�
 
 ---
 
-## VS Code — Setup para usar os Agentes
+## VS Code — Extensões para usar os Agentes
 
-Configure o VS Code uma vez e qualquer projeto passa a ter o agente certo ativado automaticamente.
-
----
-
-### Passo 1 — Extensões de IA recomendadas
-
-| Extensão | ID no Marketplace | Para que serve |
-|----------|------------------|----------------|
-| **GitHub Copilot** | `GitHub.copilot` | Autocomplete e chat com suporte a instruções de repo (`.github/copilot-instructions.md`) |
-| **GitHub Copilot Chat** | `GitHub.copilot-chat` | Chat contextual inline — ideal para conversar com o agente dentro do editor |
-| **Pixel Agents** | *(sua extensão atual)* | Visualização e gerenciamento de agentes no estilo pixel art |
-| **Continue** | `Continue.continue` | Chat local/remoto com qualquer LLM; suporta system prompt por projeto via `config.json` — ótima alternativa open-source ao Copilot |
-| **Cline** | `saoudrizwan.claude-dev` | Agente autônomo que lê, edita e executa código; integra com Claude API diretamente |
-| **Roo Code** | `RooVeterinaryInc.roo-cline` | Fork do Cline com modos especializados por papel (Architect, Code, Debug, Ask) |
-| **GitLens** | `eamodio.gitlens` | Essencial para QA: blame, histórico de arquivo, comparação entre branches |
-| **Playwright Test for VS Code** | `ms-playwright.playwright` | Runner visual de testes Playwright com debug point-and-click |
-| **Extension Pack for Java** | `vscjava.vscode-java-pack` | Java + Gradle para o projeto `lojinha-api-tests` |
-| **Robot Framework LSP** | `robocorp.robotframework-lsp` | Autocomplete e diagnóstico para arquivos `.robot` |
+> Nenhuma dessas extensões é obrigatória para usar o projeto. Os agentes funcionam com qualquer ferramenta que aceite um system prompt — Claude Code CLI, Copilot, Continue, Cline ou até colando o `.md` direto no chat. As sugestões abaixo são para quem quer uma experiência mais integrada dentro do VS Code.
 
 ---
 
-### Passo 2 — Ativar um agente por projeto (Copilot)
+### Extensões recomendadas
 
+#### GitHub Copilot + Copilot Chat
+**IDs:** `GitHub.copilot` e `GitHub.copilot-chat`
+**Publisher:** Microsoft/GitHub — oficial e auditado.
+
+**O que você ganha:** o Copilot passa a responder no persona do agente em todas as conversas do repositório, sem precisar colar o prompt manualmente toda vez.
+
+**Como funciona no dia a dia deste projeto:**
 ```bash
-# Dentro do projeto onde quer o agente:
+# Uma vez por projeto — ativa o agente desejado
 mkdir -p .github
-cp ~/qa-agents/agents/ARIA.md .github/copilot-instructions.md
+cp ~/qa-agents/agents/ARIA-WEB.md .github/copilot-instructions.md
 ```
+A partir daí o Copilot Chat daquele repo já responde como ARIA-WEB. Para trocar de agente, basta substituir o arquivo. Nenhuma outra configuração necessária.
 
-A partir daí o Copilot Chat daquele repo responde como ARIA (ou o agente que você copiar). Nenhuma configuração adicional necessária.
+> Dica: o Copilot Code Review lê apenas os primeiros **4.000 caracteres** do arquivo. Coloque as instruções mais críticas no topo do prompt.
 
 ---
 
-### Passo 3 — Ativar um agente no Continue (open-source)
+#### Continue
+**ID:** `Continue.continue`
+**Publisher:** Continue Dev — open source, código auditável no GitHub.
 
-O **Continue** permite definir um system prompt por perfil no arquivo `~/.continue/config.json`:
+**O que você ganha:** cria um perfil por agente no VS Code e troca entre eles pelo seletor de modelo, sem mexer em arquivos. Funciona com Claude API, OpenAI, modelos locais (Ollama) — você escolhe.
+
+**Como funciona no dia a dia deste projeto:**
+Edite `~/.continue/config.json` e crie um perfil para cada agente que usa com frequência:
 
 ```json
 {
   "models": [
     {
-      "title": "NEXUS — API QA Agent",
+      "title": "SIGMA-LEAD — Planejamento QA",
       "provider": "anthropic",
       "model": "claude-sonnet-4-6",
       "apiKey": "sua-chave-aqui",
-      "systemMessage": "<cole aqui o conteúdo de agents/NEXUS.md>"
+      "systemMessage": "<cole o conteúdo de agents/SIGMA-LEAD.md>"
+    },
+    {
+      "title": "NEXUS-API — Testes de API",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "apiKey": "sua-chave-aqui",
+      "systemMessage": "<cole o conteúdo de agents/NEXUS-API.md>"
     }
   ]
 }
 ```
 
-Você pode ter um perfil por agente e trocar pelo seletor de modelo no chat.
+No chat do VS Code, você troca de agente pelo dropdown — sem copiar arquivo nenhum.
 
 ---
 
-### Passo 4 — Ativar um agente no Cline / Roo Code
+#### Cline
+**ID:** `saoudrizwan.claude-dev`
+**Publisher:** open source, amplamente adotado na comunidade.
 
-O **Cline** e o **Roo Code** têm um campo de **Custom Instructions** direto nas configurações da extensão:
+**O que você ganha:** o agente não só conversa — ele lê arquivos do projeto, edita código e executa comandos no terminal de forma autônoma. Útil para pedir que NEXUS-API escreva e já salve os testes no projeto.
 
-1. Abra as configurações da extensão (`Ctrl+,` → busque "Cline" ou "Roo")
+**Como funciona no dia a dia deste projeto:**
+1. Abra as configurações do Cline (`Ctrl+,` → busque "Cline")
 2. Cole o conteúdo do agente desejado em **Custom Instructions**
-3. Selecione o modelo (`claude-sonnet-4-6` recomendado)
+3. Selecione o modelo `claude-sonnet-4-6`
 
-O **Roo Code** vai além: tem modos separados por papel (Architect, Code, Debug, Ask) — ideal para mapear cada modo a um agente diferente.
+> **Atenção:** o Cline acessa o sistema de arquivos e executa comandos no terminal por design. Revise as ações que ele propõe antes de aprovar, especialmente em projetos de produção.
 
 ---
 
-### Dica — workspace settings por projeto
+#### GitLens
+**ID:** `eamodio.gitlens`
+**Publisher:** GitKraken — empresa estabelecida, extensão com mais de 30 milhões de instalações.
 
-Salve as preferências de agente por projeto criando `.vscode/settings.json`:
+**O que você ganha:** visibilidade de histórico e autoria diretamente no editor — essencial para QA investigar quando e por quem uma linha foi alterada, comparar branches antes de testar, e entender o contexto de um bug.
+
+**Como funciona no dia a dia deste projeto:**
+Sem configuração — instale e use. As anotações de blame aparecem inline ao lado do código. O histórico de arquivo (`Alt+H`) mostra todas as alterações com diff. Útil ao revisar mudanças antes de escrever os casos de teste.
+
+---
+
+#### Playwright Test for VS Code
+**ID:** `ms-playwright.playwright`
+**Publisher:** Microsoft — oficial.
+
+**O que você ganha:** roda e depura os testes do `lojinha-tests/` diretamente pelo painel lateral do VS Code, com ponto de parada visual e gravação de ações no browser.
+
+**Como funciona no dia a dia deste projeto:**
+Abra a pasta `lojinha-tests/` no VS Code — a extensão detecta o `playwright.config.ts` automaticamente e lista todos os testes no painel "Testing". Clique em qualquer teste para rodar ou depurar sem precisar do terminal.
+
+---
+
+#### Extension Pack for Java
+**ID:** `vscjava.vscode-java-pack`
+**Publisher:** Microsoft — oficial.
+
+**O que você ganha:** suporte completo a Java no VS Code — autocomplete, diagnóstico, runner de testes JUnit, integração com Gradle.
+
+**Como funciona no dia a dia deste projeto:**
+Necessário para trabalhar no projeto `lojinha-api-tests/` (RestAssured + Java 17 + Gradle). Com a extensão instalada, os testes JUnit aparecem no painel "Testing" e podem ser rodados com um clique, igual ao Playwright.
+
+---
+
+#### Robot Framework LSP
+**ID:** `robocorp.robotframework-lsp`
+**Publisher:** Robocorp — empresa com foco em automação, extensão mantida ativamente.
+
+**O que você ganha:** autocomplete de keywords, navegação para definições e diagnóstico de erros em arquivos `.robot` — sem essa extensão, editar Robot Framework no VS Code é editar texto sem nenhum auxílio.
+
+**Como funciona no dia a dia deste projeto:**
+Necessário para trabalhar em `mobile/android/robot/`. Instale e abra qualquer arquivo `.robot` — autocomplete e erros aparecem automaticamente.
+
+---
+
+### Workspace settings por projeto
+
+Salve as preferências de agente por projeto criando `.vscode/settings.json` na raiz do seu projeto:
 
 ```json
 {
-  "continue.defaultModel": "NEXUS — API QA Agent",
-  "github.copilot.chat.codeGeneration.useInstructionFiles": true
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "continue.defaultModel": "NEXUS-API — Testes de API"
 }
 ```
 
-Assim cada repositório abre já com o agente certo sem você precisar reconfigurar nada.
+Assim cada repositório abre com o agente certo sem reconfigurar nada.
 
 ---
 
