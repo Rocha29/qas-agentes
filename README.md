@@ -23,6 +23,16 @@ Base de conhecimento e system prompts para **8 agentes QA especializados**, cons
 
 ---
 
+## Fluxo de Trabalho
+
+<p align="center">
+  <img src="assets/workflow.svg" alt="QA Agent Pipeline — fluxo de trabalho dos agentes" width="900"/>
+</p>
+
+> O fluxo completo está documentado em [`WORKFLOW.md`](WORKFLOW.md) — modos orquestrado e direto, parceria WebView, templates de história.
+
+---
+
 ## Como Usar os Agentes
 
 ### Claude Code (CLI)
