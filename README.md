@@ -4,6 +4,21 @@
   <img src="assets/agentes.png" alt="QA Agents — escritório pixel art" width="600"/>
 </p>
 
+<p align="center">
+  <a href="https://github.com/Rocha29/qas-agentes/actions/workflows/web-tests.yml">
+    <img src="https://github.com/Rocha29/qas-agentes/actions/workflows/web-tests.yml/badge.svg" alt="Web Tests"/>
+  </a>
+  <a href="https://github.com/Rocha29/qas-agentes/actions/workflows/api-tests.yml">
+    <img src="https://github.com/Rocha29/qas-agentes/actions/workflows/api-tests.yml/badge.svg" alt="API Tests"/>
+  </a>
+  <a href="https://github.com/Rocha29/qas-agentes/actions/workflows/performance-smoke.yml">
+    <img src="https://github.com/Rocha29/qas-agentes/actions/workflows/performance-smoke.yml/badge.svg" alt="Performance Smoke"/>
+  </a>
+  <a href="https://github.com/Rocha29/qas-agentes/actions/workflows/mobile-smoke.yml">
+    <img src="https://github.com/Rocha29/qas-agentes/actions/workflows/mobile-smoke.yml/badge.svg" alt="Mobile Smoke"/>
+  </a>
+</p>
+
 Base de conhecimento e system prompts para **8 agentes QA especializados**, construídos sobre o conteúdo de referências brasileiras de qualidade de software e validados em uma POC completa com automação Web, API e Performance.
 
 **Quickstart:** [`QUICKSTART.md`](QUICKSTART.md) — primeiro agente rodando em 5 minutos.
@@ -289,50 +304,75 @@ Os prompts dos agentes são fundamentados no conteúdo de cinco referências bra
 
 ```
 qa-agents/
-├── agents/                        # System prompts dos 7 agentes
-│   ├── ARIA.md
-│   ├── KAUE.md
-│   ├── NEXUS.md
-│   ├── FLUX.md
-│   ├── ATLAS.md
-│   ├── HELIX.md
-│   └── SIGMA.md
+├── agents/                          # System prompts dos 8 agentes
+│   ├── SIGMA-LEAD.md                # Orquestrador — lê histórias e distribui
+│   ├── ARIA-WEB.md                  # Automação Web & WebView
+│   ├── KAUE-MOBILE.md               # Automação Mobile Android/iOS/WebView
+│   ├── NEXUS-API.md                 # Testes de API e BFF
+│   ├── FLUX-PERF.md                 # Performance e observabilidade
+│   ├── ATLAS-ARCH.md                # Arquitetura de qualidade
+│   ├── HELIX-EXPLORE.md             # Exploratório e tendências
+│   ├── SIGMA-BIZ.md                 # Negócios e relatório executivo
+│   └── plugins/
+│       └── self-healing.md          # Fallback chain para locators
 │
-├── knowledge_base/                # Base de conhecimento por autor
+├── .github/workflows/               # CI/CD — 4 pipelines prontos
+│   ├── web-tests.yml                # ARIA-WEB — Playwright
+│   ├── api-tests.yml                # NEXUS-API — Gradle/RestAssured
+│   ├── performance-smoke.yml        # FLUX-PERF — k6 smoke + cron diário
+│   └── mobile-smoke.yml             # KAUE-MOBILE — Maestro + emulador
+│
+├── historias/                       # Histórias de usuário para os agentes
+│   ├── _template-negocio.md         # Template para histórias de negócio
+│   ├── _template-tecnico.md         # Template para histórias técnicas
+│   └── HIST-001.md                  # Exemplo preenchido
+│
+├── knowledge_base/                  # Base de conhecimento por autor
 │   ├── julio-de-lima/
 │   ├── fernando-papito/
 │   ├── qazando/
 │   ├── vinicius-pessoni/
 │   ├── walmyr-talkingabouttesting/
-│   └── lojinha/                   # Contexto da aplicação de referência
+│   └── lojinha/                     # Contexto da aplicação de referência
 │
-├── lojinha-tests/                 # Testes E2E Web — Playwright + TypeScript
-│   ├── pages/                     # Page Objects
-│   ├── tests/                     # Specs
+├── lojinha-tests/                   # Testes E2E Web — Playwright + TypeScript
+│   ├── pages/                       # Page Objects (Login, ProdutoForm, ProdutoLista)
+│   ├── tests/                       # Specs (login.spec.ts, produto.spec.ts)
+│   ├── support/                     # self-healing.ts, helpers
 │   ├── playwright.config.ts
 │   └── package.json
 │
-├── lojinha-api-tests/             # Testes de API — RestAssured + Java 17 + JUnit 5
+├── lojinha-api-tests/               # Testes de API — RestAssured + Java 17 + JUnit 5
 │   ├── src/test/java/
+│   ├── lojinha-v2.yml               # Contrato OpenAPI
 │   ├── build.gradle
 │   └── gradlew
 │
 ├── lojinha-performance/
-│   ├── k6/                        # Scripts de performance k6
-│   │   ├── smoke.js
-│   │   ├── stress.js
-│   │   ├── login-load.js
-│   │   └── produtos-load.js
-│   └── jmeter/                    # Planos de teste JMeter (.jmx)
+│   ├── k6/                          # Scripts k6 (smoke, stress, login-load, produtos-load)
+│   └── jmeter/                      # Planos de teste JMeter (.jmx)
 │
 ├── mobile/
 │   └── android/
-│       ├── maestro/flows/         # Flows YAML para Maestro
-│       └── robot/                 # Robot Framework + AppiumLibrary
+│       ├── maestro/flows/           # Flows YAML (login, navigation, onboarding)
+│       └── robot/                   # Robot Framework + AppiumLibrary
 │
-├── reports/                       # Relatórios da POC
-├── USAGE.md                       # Matriz de decisão e checklists
-└── CLAUDE.md                      # Instruções para o Claude Code
+├── tools/
+│   └── generate_dashboard.py        # Gera reports/dashboard.md automaticamente
+│
+├── assets/
+│   ├── agentes.png                  # Banner pixel art
+│   └── workflow.svg                 # Diagrama do pipeline de agentes
+│
+├── reports/                         # Relatórios gerados
+│   ├── dashboard.md                 # Dashboard de qualidade (gerado pelo CI)
+│   ├── melhorias-competitivas.md    # Análise de gaps vs. concorrentes
+│   └── relatorio-poc-final.md       # Relatório da POC inicial
+│
+├── QUICKSTART.md                    # Primeiro agente em 5 minutos
+├── WORKFLOW.md                      # Guia de uso — modos orquestrado e direto
+├── USAGE.md                         # Matriz de decisão e checklists
+└── CLAUDE.md                        # Instruções para o Claude Code
 ```
 
 ---
