@@ -39,7 +39,9 @@ jobs:
         working-directory: lojinha-api-tests
         run: ./gradlew test --info
         env:
-          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+          LOJINHA_BASE_URI: ${{ vars.LOJINHA_BASE_URI || 'http://165.227.93.41/lojinha' }}
+          LOJINHA_LOGIN: ${{ vars.LOJINHA_LOGIN || 'admin' }}
+          LOJINHA_SENHA: ${{ secrets.LOJINHA_SENHA || 'admin' }}
 
       - name: Upload JUnit XML results
         uses: actions/upload-artifact@v4

@@ -1,4 +1,4 @@
-name: Mobile Smoke — KAUE-MOBILE (Maestro)
+name: Mobile Smoke — KAUE-MOBILE (Maestro Android)
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
       - 'mobile/android/maestro/**'
   workflow_dispatch:
     inputs:
-      run_on_device:
+      run_on_cloud:
         description: 'Rodar em dispositivo real via Maestro Cloud'
         required: false
         default: 'false'
@@ -29,86 +29,116 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java (necessário para o emulador Android)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
 
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: Start Android Emulator (API 30)
+      - name: Create results directory
+        run: mkdir -p results
+
+      # Baixa o APK publicado no GitHub Release v1.0.0-apk
+      - name: Download APK from release
+        run: |
+          gh release download v1.0.0-apk \
+            --repo ${{ github.repository }} \
+            --pattern "*.apk" \
+            --dir mobile/android/apk/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable KVM (hardware acceleration for emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Maestro flows on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
           arch: x86_64
-          profile: Nexus 6
-          avd-name: test
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          profile: pixel_2
+          avd-name: kaue_test
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: echo "Emulator started"
+          script: |
+            # Instala o APK no emulador
+            APK=$(find mobile/android/apk -name "*.apk" | head -1)
+            echo "Instalando APK: $APK"
+            adb install -r "$APK"
 
-      - name: Wait for emulator to be ready
-        run: adb wait-for-device shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 3; done'
+            # Aguarda o app estar pronto
+            sleep 3
 
-      - name: Install APK on emulator
-        run: |
-          # O APK não está no repo (ignorado pelo .gitignore)
-          # Em produção: baixe o APK de um release ou artifact de build
-          # adb install mobile/android/apk/app.apk
-          echo "⚠️  APK não incluído no repo. Configure o download via secrets ou artifacts."
-          echo "Exemplo: adb install \${{ secrets.APK_PATH }}"
+            # Roda os flows Maestro
+            maestro test mobile/android/maestro/flows/login.yaml \
+              --format junit \
+              --output results/maestro-login.xml || true
 
-      - name: Run Maestro smoke flows
-        run: |
-          maestro test mobile/android/maestro/flows/login.yaml \
-            --format junit \
-            --output results/maestro-login.xml || true
-
-          maestro test mobile/android/maestro/flows/navigation.yaml \
-            --format junit \
-            --output results/maestro-navigation.xml || true
+            maestro test mobile/android/maestro/flows/navigation.yaml \
+              --format junit \
+              --output results/maestro-navigation.xml || true
 
       - name: Upload Maestro results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: maestro-results-${{ github.run_number }}
+          name: maestro-android-results-${{ github.run_number }}
           path: results/maestro-*.xml
           retention-days: 14
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: KAUE-MOBILE Android Results
+          path: results/maestro-*.xml
+          reporter: java-junit
+          fail-on-error: false
 
       - name: Summary
         if: always()
         run: |
-          echo "## KAUE-MOBILE — Maestro Results" >> $GITHUB_STEP_SUMMARY
+          echo "## KAUE-MOBILE — Maestro Android Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Flows executados:" >> $GITHUB_STEP_SUMMARY
-          echo "- login.yaml" >> $GITHUB_STEP_SUMMARY
-          echo "- navigation.yaml" >> $GITHUB_STEP_SUMMARY
+          echo "| Flow | Arquivo de resultado |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|---------------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| login.yaml | results/maestro-login.xml |" >> $GITHUB_STEP_SUMMARY
+          echo "| navigation.yaml | results/maestro-navigation.xml |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> Para flows completos com dispositivo real: configure \`MAESTRO_API_KEY\` e use Maestro Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "APK: twp.apk (baixado de GitHub Release v1.0.0-apk)" >> $GITHUB_STEP_SUMMARY
 
+  # Job opcional — Maestro Cloud (dispositivo real Android, acionado manualmente)
   maestro-cloud:
     name: Maestro Cloud — Dispositivo Real
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Só roda quando acionado manualmente com run_on_device=true
-    if: github.event.inputs.run_on_device == 'true'
+    if: github.event.inputs.run_on_cloud == 'true'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download APK from release
+        run: |
+          gh release download v1.0.0-apk \
+            --repo ${{ github.repository }} \
+            --pattern "*.apk" \
+            --dir mobile/android/apk/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run on Maestro Cloud (dispositivo real)
         uses: mobile-dev-inc/action-maestro-cloud@v1
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
-          app-file: ${{ secrets.APK_PATH }}
+          app-file: mobile/android/apk/twp.apk
           workspace: mobile/android/maestro/
           android-api-level: 30
