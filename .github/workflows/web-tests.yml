@@ -1,0 +1,73 @@
+name: Web Tests — ARIA-WEB (Playwright)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lojinha-tests/**'
+      - 'agents/ARIA-WEB.md'
+      - '.github/workflows/web-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lojinha-tests/**'
+  workflow_dispatch:
+
+jobs:
+  playwright:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: lojinha-tests/package-lock.json
+
+      - name: Install dependencies
+        working-directory: lojinha-tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: lojinha-tests
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Playwright tests
+        working-directory: lojinha-tests
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: lojinha-tests/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results (JSON)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results-${{ github.run_number }}
+          path: lojinha-tests/test-results/
+          retention-days: 14
+
+      - name: Generate quality summary
+        if: always()
+        working-directory: lojinha-tests
+        run: |
+          echo "## ARIA-WEB — Playwright Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f test-results/.last-run.json ]; then
+            echo "Results file found — see artifact for full report" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "📊 Full report available in artifacts: \`playwright-report-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY

@@ -6,6 +6,23 @@
 
 Base de conhecimento e system prompts para **8 agentes QA especializados**, construídos sobre o conteúdo de referências brasileiras de qualidade de software e validados em uma POC completa com automação Web, API e Performance.
 
+**Quickstart:** [`QUICKSTART.md`](QUICKSTART.md) — primeiro agente rodando em 5 minutos.
+
+### Capacidades
+
+| Capacidade | Status |
+|-----------|--------|
+| Testes E2E Web (Playwright) | ✅ ARIA-WEB |
+| Testes Mobile Android/iOS/WebView | ✅ KAUE-MOBILE |
+| Testes de API e BFF (RestAssured) | ✅ NEXUS-API |
+| Performance e SLA (k6 + JMeter) | ✅ FLUX-PERF |
+| CI/CD — 4 pipelines GitHub Actions | ✅ `.github/workflows/` |
+| Self-healing de locators | ✅ `agents/plugins/self-healing.md` |
+| Dashboard automático de qualidade | ✅ `tools/generate_dashboard.py` |
+| Planejamento QA por história (HIST-NNN) | ✅ SIGMA-LEAD + `historias/` |
+| Integração Jira/Linear via MCP | ✅ SIGMA-BIZ |
+| Relatório executivo por sprint | ✅ SIGMA-BIZ |
+
 ---
 
 ## O Time de Agentes

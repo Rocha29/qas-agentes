@@ -211,11 +211,95 @@ guiado pelos artefatos QA criados pelos agentes
 
 ---
 
+## 🔌 Integração com Jira e Linear via MCP
+
+Quando equipado com MCP, SIGMA-BIZ conecta diretamente às ferramentas de gestão para criar issues de bug automaticamente quando os testes identificam falhas.
+
+### Configuração MCP — Jira
+
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-jira"],
+      "env": {
+        "JIRA_URL": "https://sua-empresa.atlassian.net",
+        "JIRA_USERNAME": "seu-email@empresa.com",
+        "JIRA_API_TOKEN": "<token gerado em id.atlassian.com/manage-profile/security/api-tokens>",
+        "JIRA_PROJECT_KEY": "QA"
+      }
+    }
+  }
+}
+```
+
+> Referência: https://github.com/modelcontextprotocol/servers
+
+### Configuração MCP — Linear
+
+```json
+{
+  "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "linear-mcp-server"],
+      "env": {
+        "LINEAR_API_KEY": "<token gerado em linear.app/settings/api>"
+      }
+    }
+  }
+}
+```
+
+### Como SIGMA-BIZ cria um bug automaticamente
+
+Quando um teste falha no CI e o resultado chega ao SIGMA-BIZ:
+
+```
+# Exemplo de instrução para SIGMA-BIZ com MCP Jira ativo:
+
+"O pipeline de API falhou — NEXUS-API reportou que
+POST /produtos retorna 500 quando preco=0.
+Crie um bug no Jira com severidade Alta, sprint atual,
+componente 'API / BFF' e vincule ao HIST-042."
+```
+
+SIGMA-BIZ então usa o MCP Jira para:
+1. Criar a issue com título, descrição e severidade padronizados
+2. Anexar o trecho do log de falha
+3. Atribuir ao responsável técnico
+4. Vincular à história de origem
+
+### Template de bug gerado pelo SIGMA-BIZ
+
+```markdown
+**Título:** [NEXUS-API] POST /produtos retorna 500 quando preco=0
+**Tipo:** Bug
+**Severidade:** Alta
+**Componente:** API / BFF
+**Sprint:** Sprint atual
+**Descoberto por:** NEXUS-API (pipeline CI — Run #142)
+**História relacionada:** HIST-042
+
+**Passos para reproduzir:**
+POST /api/v1/produtos
+Body: { "nome": "Produto X", "preco": 0, "categoriaId": "abc" }
+
+**Resultado atual:** HTTP 500 Internal Server Error
+**Resultado esperado:** HTTP 422 com mensagem "Preço deve ser maior que zero"
+
+**Evidência:** [link para artifact do CI]
+```
+
+---
+
 ## 📚 Fontes que você cita
 
 - Vinícius Pessoni liderança: https://viniciuspessoni.com
 - Júlio de Lima programa: https://mentoria.juliodelima.com.br
 - Fernando Papito AutomatizAI: https://fernandopapito.com
 - QAzando: https://qazando.com.br
+- MCP Jira: https://github.com/modelcontextprotocol/servers
 - MCP Google Calendar: integração para agendamento de reviews
 - MCP Gmail: integração para relatórios automáticos por email

@@ -1,0 +1,105 @@
+name: Performance Smoke — FLUX-PERF (k6)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lojinha-performance/k6/**'
+      - 'agents/FLUX-PERF.md'
+      - '.github/workflows/performance-smoke.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lojinha-performance/k6/**'
+  schedule:
+    # Roda diariamente às 06:00 UTC (03:00 BRT) para monitorar SLA
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  k6-smoke:
+    name: k6 Smoke Test — SLA Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run smoke test
+        working-directory: lojinha-performance/k6
+        run: |
+          k6 run smoke.js \
+            --out json=../../results/k6-smoke-${{ github.run_number }}.json \
+            --summary-export=../../results/k6-summary-${{ github.run_number }}.json
+        env:
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+          K6_OUT: json
+
+      - name: Check SLA thresholds
+        if: always()
+        run: |
+          echo "## FLUX-PERF — k6 Smoke Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f results/k6-summary-${{ github.run_number }}.json ]; then
+            echo "### SLA Thresholds" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+            cat results/k6-summary-${{ github.run_number }}.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          metrics = data.get('metrics', {})
+          p95 = metrics.get('http_req_duration', {}).get('values', {}).get('p(95)', 'N/A')
+          errors = metrics.get('http_req_failed', {}).get('values', {}).get('rate', 'N/A')
+          print(f'p95 response time: {p95}ms')
+          print(f'Error rate: {errors}')
+          " >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Summary parsing skipped" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> SLA: p95 < 500ms · Error rate < 1%" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload k6 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-results-${{ github.run_number }}
+          path: results/k6-*.json
+          retention-days: 30
+
+  k6-load:
+    name: k6 Load Test — Login & Produtos
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Load test só roda no main e manualmente — não em PRs
+    if: github.event_name != 'pull_request'
+    needs: k6-smoke
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run login load test
+        working-directory: lojinha-performance/k6
+        run: k6 run login-load.js --out json=../../results/k6-login-load-${{ github.run_number }}.json
+        env:
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+
+      - name: Run produtos load test
+        working-directory: lojinha-performance/k6
+        run: k6 run produtos-load.js --out json=../../results/k6-produtos-load-${{ github.run_number }}.json
+        env:
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+
+      - name: Upload load results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-load-results-${{ github.run_number }}
+          path: results/k6-*-load-*.json
+          retention-days: 30
