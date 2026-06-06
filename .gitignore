@@ -45,5 +45,8 @@ output.xml
 report.html
 lojinha-performance/jmeter/jmeter.log
 
+# Imagem original na raiz (movida para assets/)
+Imagem_agentes.png
+
 # macOS
 .DS_Store

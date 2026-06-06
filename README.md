@@ -1,5 +1,9 @@
 # QA Agents — Time de Agentes Especializados em Qualidade de Software
 
+<p align="center">
+  <img src="assets/agentes.png" alt="QA Agents — escritório pixel art" width="600"/>
+</p>
+
 Base de conhecimento e system prompts para 7 agentes QA especializados, construídos sobre o conteúdo de referências brasileiras de qualidade de software e validados em uma POC completa com automação Web, API e Performance.
 
 ---
@@ -90,6 +94,90 @@ O arquivo `.github/copilot-instructions.md` é enviado automaticamente em toda m
 | Relatório executivo / métricas | SIGMA |
 
 Consulte `USAGE.md` para a matriz completa de decisão e checklists de validação por agente.
+
+---
+
+## VS Code — Setup para usar os Agentes
+
+Configure o VS Code uma vez e qualquer projeto passa a ter o agente certo ativado automaticamente.
+
+---
+
+### Passo 1 — Extensões de IA recomendadas
+
+| Extensão | ID no Marketplace | Para que serve |
+|----------|------------------|----------------|
+| **GitHub Copilot** | `GitHub.copilot` | Autocomplete e chat com suporte a instruções de repo (`.github/copilot-instructions.md`) |
+| **GitHub Copilot Chat** | `GitHub.copilot-chat` | Chat contextual inline — ideal para conversar com o agente dentro do editor |
+| **Pixel Agents** | *(sua extensão atual)* | Visualização e gerenciamento de agentes no estilo pixel art |
+| **Continue** | `Continue.continue` | Chat local/remoto com qualquer LLM; suporta system prompt por projeto via `config.json` — ótima alternativa open-source ao Copilot |
+| **Cline** | `saoudrizwan.claude-dev` | Agente autônomo que lê, edita e executa código; integra com Claude API diretamente |
+| **Roo Code** | `RooVeterinaryInc.roo-cline` | Fork do Cline com modos especializados por papel (Architect, Code, Debug, Ask) |
+| **GitLens** | `eamodio.gitlens` | Essencial para QA: blame, histórico de arquivo, comparação entre branches |
+| **Playwright Test for VS Code** | `ms-playwright.playwright` | Runner visual de testes Playwright com debug point-and-click |
+| **Extension Pack for Java** | `vscjava.vscode-java-pack` | Java + Gradle para o projeto `lojinha-api-tests` |
+| **Robot Framework LSP** | `robocorp.robotframework-lsp` | Autocomplete e diagnóstico para arquivos `.robot` |
+
+---
+
+### Passo 2 — Ativar um agente por projeto (Copilot)
+
+```bash
+# Dentro do projeto onde quer o agente:
+mkdir -p .github
+cp ~/qa-agents/agents/ARIA.md .github/copilot-instructions.md
+```
+
+A partir daí o Copilot Chat daquele repo responde como ARIA (ou o agente que você copiar). Nenhuma configuração adicional necessária.
+
+---
+
+### Passo 3 — Ativar um agente no Continue (open-source)
+
+O **Continue** permite definir um system prompt por perfil no arquivo `~/.continue/config.json`:
+
+```json
+{
+  "models": [
+    {
+      "title": "NEXUS — API QA Agent",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "apiKey": "sua-chave-aqui",
+      "systemMessage": "<cole aqui o conteúdo de agents/NEXUS.md>"
+    }
+  ]
+}
+```
+
+Você pode ter um perfil por agente e trocar pelo seletor de modelo no chat.
+
+---
+
+### Passo 4 — Ativar um agente no Cline / Roo Code
+
+O **Cline** e o **Roo Code** têm um campo de **Custom Instructions** direto nas configurações da extensão:
+
+1. Abra as configurações da extensão (`Ctrl+,` → busque "Cline" ou "Roo")
+2. Cole o conteúdo do agente desejado em **Custom Instructions**
+3. Selecione o modelo (`claude-sonnet-4-6` recomendado)
+
+O **Roo Code** vai além: tem modos separados por papel (Architect, Code, Debug, Ask) — ideal para mapear cada modo a um agente diferente.
+
+---
+
+### Dica — workspace settings por projeto
+
+Salve as preferências de agente por projeto criando `.vscode/settings.json`:
+
+```json
+{
+  "continue.defaultModel": "NEXUS — API QA Agent",
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}
+```
+
+Assim cada repositório abre já com o agente certo sem você precisar reconfigurar nada.
 
 ---
 
