@@ -20,9 +20,12 @@ const buscarDuration  = new Trend('duracao_buscar',  true);
 const deletarDuration = new Trend('duracao_deletar', true);
 const taxaErro        = new Rate('taxa_erro_negocio');
 
+// No CI usa duração curta para feedback rápido; localmente roda 1 minuto completo
+const smokeDuration = __ENV.SMOKE_DURATION || '1m';
+
 export const options = {
   stages: [
-    { duration: '1m', target: 1 },
+    { duration: smokeDuration, target: 1 },
   ],
   thresholds: {
     ...THRESHOLDS,

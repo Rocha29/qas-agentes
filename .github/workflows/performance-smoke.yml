@@ -29,6 +29,9 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
+      - name: Create results directory
+        run: mkdir -p results
+
       - name: Run smoke test
         working-directory: lojinha-performance/k6
         run: |
@@ -36,8 +39,8 @@ jobs:
             --out json=../../results/k6-smoke-${{ github.run_number }}.json \
             --summary-export=../../results/k6-summary-${{ github.run_number }}.json
         env:
-          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
-          K6_OUT: json
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41/lojinha' }}
+          SMOKE_DURATION: '30s'
 
       - name: Check SLA thresholds
         if: always()
@@ -84,17 +87,20 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
+      - name: Create results directory
+        run: mkdir -p results
+
       - name: Run login load test
         working-directory: lojinha-performance/k6
         run: k6 run login-load.js --out json=../../results/k6-login-load-${{ github.run_number }}.json
         env:
-          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41/lojinha' }}
 
       - name: Run produtos load test
         working-directory: lojinha-performance/k6
         run: k6 run produtos-load.js --out json=../../results/k6-produtos-load-${{ github.run_number }}.json
         env:
-          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41' }}
+          BASE_URL: ${{ vars.LOJINHA_BASE_URL || 'http://165.227.93.41/lojinha' }}
 
       - name: Upload load results
         uses: actions/upload-artifact@v4
