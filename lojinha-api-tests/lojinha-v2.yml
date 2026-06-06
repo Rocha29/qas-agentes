@@ -1,0 +1,601 @@
+swagger: "2.0"
+info:
+  description: "API criada pelo Júlio de Lima para suportar seus alunos na aprendizagem de técnicas e ferramentas de teste de software."
+  version: "2.0.0"
+  title: "Lojinha API"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "165.227.93.41"
+basePath: "/lojinha"
+tags:
+- name: "usuario"
+  description: "Adição, login e restauração ao estado inicial"
+- name: "produto"
+  description: "Gestão dos produtos de um usuário"
+- name: "componente"
+  description: "Gestão dos componentes de um determinado produto"
+schemes:
+- "http"
+paths:
+  /v2/produtos:
+    post:
+      tags:
+      - "produto"
+      summary: "Adicionar um novo produto"
+      description: ""
+      operationId: "adicionarProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Produto que desejo persistir no banco de dados"
+        required: true
+        schema:
+          $ref: "#/definitions/ProdutoRequest"
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/ProdutoResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Not Authorized"
+        422:
+          description: "Unprocessable Entity"
+    get:
+      tags:
+      - "produto"
+      summary: "Buscar os produtos do usuário"
+      description: ""
+      operationId: "getProdutos"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário dono do produto"
+        required: true
+      - in: "query"
+        name: "produtoNome"
+        type: "string"
+        description: "Filtre pelo nome"
+      - in: "query"
+        name: "produtoCor"
+        type: "string"
+        description: "Filtre pela cor"
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ProdutosResponse"
+        401:
+          description: "Not Authorized"
+  /v2/produtos/{produtoId}:
+    get:
+      tags:
+      - "produto"
+      summary: "Buscar um dos produtos do usuário"
+      description: ""
+      operationId: "buscarUmProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        200:
+          description: "Sucesso ao buscar o produto"
+          schema:
+            $ref: "#/definitions/ProdutoResponse"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+      - "produto"
+      summary: "Alterar informações de um produto"
+      description: ""
+      operationId: "alterarProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "body"
+        name: "body"
+        description: "Informações do Produto"
+        required: true
+        schema:
+          $ref: "#/definitions/ProdutoRequest"
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ProdutoResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+        422:
+          description: "Unprocessable Entity"
+    delete:
+      tags:
+      - "produto"
+      summary: "Remover um produto"
+      description: ""
+      operationId: "removerProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        204:
+          description: "No Content"
+        401:
+          description: "Not Authorized"
+  /v2/produtos/{produtoId}/componentes:
+    post:
+      tags:
+      - "componente"
+      summary: "Adicionar um novo componente ao produto"
+      description: ""
+      operationId: "adicionarComponenteProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Dados do componente do produto"
+        required: true
+        schema:
+          $ref: "#/definitions/ComponenteRequest"
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do componente de produto"
+        required: true
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/ComponenteResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+        422:
+          description: "Unprocessable Entity"
+    get:
+      tags:
+      - "componente"
+      summary: "Buscar dados dos componentes de um produto"
+      description: ""
+      operationId: "getComponentesProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do componente de produto"
+        required: true
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ComponenteResponse"
+        401:
+          description: "Not Authorized"
+  /v2/produtos/{produtoId}/componentes/{componenteId}:
+    get:
+      tags:
+      - "componente"
+      summary: "Buscar um componente de produto"
+      description: ""
+      operationId: "buscarUmComponenteProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "path"
+        name: "componenteId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do componente do produto"
+        required: true
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ComponenteResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+      - "componente"
+      summary: "Alterar informações de um componente de produto"
+      description: ""
+      operationId: "editarComponenteProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "path"
+        name: "componenteId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do componente do produto"
+        required: true
+      - in: "body"
+        name: "body"
+        description: "Informações do componente"
+        required: true
+        schema:
+          $ref: "#/definitions/ComponenteRequest"
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do produto"
+        required: true
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ComponenteResponse"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+      - "componente"
+      summary: "Remover um componente do produto"
+      description: ""
+      operationId: "removerComponenteProduto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "produtoId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do produto"
+        required: true
+      - in: "path"
+        name: "componenteId"
+        type: "integer"
+        format: "int64"
+        description: "Identificação do componente do produto"
+        required: true
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário a dono do componente de produto"
+        required: true
+      responses:
+        204:
+          description: "No Content"
+        401:
+          description: "Not Authorized"
+        404:
+          description: "Not Found"
+  /v2/login:
+    post:
+      tags:
+      - "usuario"
+      summary: "Obter token do usuário"
+      description: ""
+      operationId: "getToken"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Credenciais do usuário"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginRequest"
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        401:
+          description: "Not Authorized"
+  /v2/usuarios:
+    post:
+      tags:
+      - "usuario"
+      summary: "Adicionar um novo usuário"
+      description: ""
+      operationId: "postUsuario"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Dados do usuário"
+        required: true
+        schema:
+          $ref: "#/definitions/UsuarioRequest"
+      responses:
+        201:
+          description: "Created"
+          schema:
+            $ref: "#/definitions/UsuarioResponse"
+        400:
+          description: "Bad Request"
+        409:
+          description: "Conflict"
+  /v2/dados:
+    delete:
+      tags:
+      - "usuario"
+      summary: "Limpar todos os dados do usuário"
+      description: ""
+      operationId: "limparDados"
+      parameters:
+      - in: "header"
+        name: "token"
+        type: "string"
+        description: "Token do usuário que deseja ter seus dados limpos"
+        required: true
+      responses:
+        204:
+          description: "No Content"
+        401:
+          description: "Not Authorized"
+definitions:
+  Componente:
+    type: "object"
+    properties:
+      componenteId:
+        type: "integer"
+        format: "int64"
+      componenteNome:
+        type: "string"
+      componenteQuantidade:
+        type: "integer"
+        format: "int32"
+  ComponenteResponse:
+    type: "object"
+    properties:
+      data:
+        $ref: "#/definitions/Componente"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  ComponenteRequest:
+    type: "object"
+    properties:
+      componenteNome:
+        type: "string"
+      componenteQuantidade:
+        type: "integer"
+        format: "int32"
+    required:
+      - componenteNome
+      - componenteQuantidade
+  Produto:
+    type: "object"
+    properties:
+      produtoId:
+        type: "integer"
+        format: "int64"
+      produtoNome:
+        type: "string"
+      produtoValor:
+        type: "integer"
+        format: "int32"
+      produtoCores:
+        type: "array"
+        items:
+          type: "string"
+      produtoUrlMock:
+         type: "string"
+      componentes:
+        type: "array"
+        items:
+          $ref: "#/definitions/Componente"
+  ProdutoResponse:
+    type: "object"
+    properties:
+      data:
+        $ref: "#/definitions/Produto"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  ProdutosResponse:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/Produto"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  ProdutoRequest:
+    type: "object"
+    properties:
+      produtoNome:
+        type: "string"
+      produtoValor:
+        type: "integer"
+        format: "int32"
+      produtoCores:
+        type: "array"
+        items:
+          type: "string"
+      produtoUrlMock:
+         type: "string"
+      componentes:
+        type: "array"
+        items:
+          $ref: "#/definitions/ComponenteRequest"
+    required:
+      - produtoId
+      - produtoNome
+      - produtoValor
+      - componentes
+  Login:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+  LoginResponse:
+    type: "object"
+    properties:
+      data:
+        $ref: "#/definitions/Login"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  LoginRequest:
+    type: "object"
+    properties:
+      usuarioLogin:
+        type: "string"
+      usuarioSenha:
+        type: "string"
+    required:
+      - usuarioLogin
+      - usuarioSenha
+  Usuario:
+    type: "object"
+    properties:
+      usuarioId:
+        type: "integer"
+        format: "int64"
+      usuarioLogin:
+        type: "string"
+      usuarioNome:
+        type: "string"
+  UsuarioResponse:
+    type: "object"
+    properties:
+      data:
+        $ref: "#/definitions/Usuario"
+      message:
+        type: "string"
+      error:
+        type: "string"
+  UsuarioRequest:
+    type: "object"
+    properties:
+      usuarioNome:
+        type: "string"
+      usuarioLogin:
+        type: "string"
+      usuarioSenha:
+        type: "string"
+    required:
+      - usuarioNome
+      - usuarioLogin
+      - usuarioSenha

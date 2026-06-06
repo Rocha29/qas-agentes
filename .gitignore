@@ -1,0 +1,49 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Java / Gradle
+.gradle/
+*.class
+*.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+target/
+
+# Python
+__pycache__/
+*.pyc
+
+# Ambiente
+.env
+
+# JMeter / k6
+*.jtl
+results/
+
+# Playwright / Robot reports
+reports/*.html
+lojinha-tests/test-results/
+mobile/android/robot/results/
+
+# Mobile
+.maestro/
+mobile/android/apk/*.apk
+mobile/android/robot/app/*.apk
+*.apk
+
+# Knowledge base — transcrições são pesadas
+knowledge_base/*/transcripts/
+
+# Claude Code — settings locais, não sobem para o repo
+.claude/
+
+# Arquivos de execução gerados na raiz
+jmeter.log
+log.html
+output.xml
+report.html
+lojinha-performance/jmeter/jmeter.log
+
+# macOS
+.DS_Store

@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProdutoResponse",
+  "type": "object",
+  "required": ["data", "message", "error"],
+  "properties": {
+    "message": { "type": "string" },
+    "error":   { "type": "string" },
+    "data": {
+      "type": "object",
+      "required": ["produtoId", "produtoNome", "produtoValor", "produtoCores", "componentes"],
+      "properties": {
+        "produtoId":     { "type": "integer" },
+        "produtoNome":   { "type": "string", "minLength": 1 },
+        "produtoValor":  { "type": "integer", "minimum": 1, "maximum": 7000 },
+        "produtoUrlMock":{ "type": "string" },
+        "produtoCores": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "componentes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["componenteId", "componenteNome", "componenteQuantidade"],
+            "properties": {
+              "componenteId":         { "type": "integer" },
+              "componenteNome":       { "type": "string" },
+              "componenteQuantidade": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

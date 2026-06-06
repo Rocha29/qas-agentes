@@ -1,0 +1,56 @@
+{
+  "authors": [
+    {
+      "id": "julio-de-lima",
+      "name": "Júlio de Lima",
+      "youtube_channel": "https://www.youtube.com/@JuliodeLimas",
+      "website": "https://juliodelima.com.br",
+      "specialties": ["API REST", "BDD", "Cypress", "Playwright", "JMeter", "Estratégia de Testes"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "fernando-papito",
+      "name": "Fernando Papito",
+      "youtube_channel": "https://www.youtube.com/channel/UCzsGhfwdImeKj2AOoN92hFw",
+      "website": "https://fernandopapito.com",
+      "specialties": ["Playwright", "Robot Framework", "DevOps", "CI/CD", "Arquitetura de Frameworks"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "qazando",
+      "name": "QAzando",
+      "youtube_channel": "https://www.youtube.com/c/QAzando",
+      "website": "https://qazando.com.br",
+      "specialties": ["Automação Mobile", "Cypress", "Appium", "Gestão de Equipes QA"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "vinicius-pessoni",
+      "name": "Vinícius Pessoni",
+      "youtube_channel": "https://www.youtube.com/c/pessonizando",
+      "website": "https://viniciuspessoni.com",
+      "specialties": ["RestAssured", "Java", "JUnit5", "CTFL", "Liderança", "Carreira Internacional"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "walmyr-talkingabouttesting",
+      "name": "Walmyr Filho (TalkingAboutTesting)",
+      "youtube_channel": "https://www.youtube.com/@TalkingAboutTesting",
+      "website": "https://talkingabouttesting.com",
+      "specialties": ["Cypress", "JavaScript", "Clean Code", "CI/CD", "Testes E2E", "Mobile Viewport"],
+      "language": "pt-BR"
+    }
+  ],
+  "topics_keywords": {
+    "API": ["api", "rest", "restassured", "postman", "insomnia", "swagger", "endpoint", "http"],
+    "Web": ["playwright", "cypress", "selenium", "browser", "e2e", "interface", "frontend"],
+    "Mobile": ["mobile", "appium", "maestro", "android", "ios", "app"],
+    "Performance": ["performance", "carga", "jmeter", "k6", "stress", "load"],
+    "DevOps": ["devops", "ci", "cd", "pipeline", "github actions", "jenkins", "docker"],
+    "Carreira": ["carreira", "salário", "mercado", "vaga", "emprego", "internacional"],
+    "Fundamentos": ["fundamentos", "estratégia", "bdd", "tdd", "ctfl", "istqb", "qualidade"],
+    "Robot Framework": ["robot", "robot framework", "keyword", "library"],
+    "Java": ["java", "junit", "gradle", "maven", "restassured"],
+    "IA": ["inteligência artificial", "ia", "ai", "machine learning", "copilot", "claude"]
+  }
+}

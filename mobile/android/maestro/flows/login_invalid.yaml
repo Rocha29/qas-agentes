@@ -1,0 +1,13 @@
+appId: io.qaninja.android.twp
+---
+- launchApp
+- tapOn:
+    text: "E-mail"
+- inputText: "invalido@teste.com"
+- tapOn:
+    text: "Senha"
+- inputText: "senhaerrada"
+- tapOn:
+    text: "Entrar"
+- assertVisible:
+    text: "Credenciais inválidas"

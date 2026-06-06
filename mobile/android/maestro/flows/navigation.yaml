@@ -1,0 +1,8 @@
+appId: io.qaninja.android.twp
+---
+- runFlow: onboarding.yaml
+- assertVisible: "AVENGERS"
+- tapOn: "LISTA"
+- assertVisible: "LISTA"
+- tapOn: "BUSCA"
+- assertVisible: "BUSCA"

@@ -1,0 +1,12 @@
+appId: io.qaninja.android.twp
+---
+- stopApp
+- clearState
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible: "QA Ninja"
+- assertVisible: "Training Wheels Protocol"
+- assertVisible: "COMEÇAR"
+- tapOn: "COMEÇAR"
+- assertVisible: "AVENGERS"

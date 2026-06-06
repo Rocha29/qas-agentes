@@ -1,0 +1,6 @@
+appId: io.qaninja.android.twp
+---
+# Maestro global config for TWP Android app
+env:
+  BASE_URL: ""
+  DEFAULT_TIMEOUT: 5000
