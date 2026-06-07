@@ -296,6 +296,8 @@
   #slide-0 .subtitle { font-size: clamp(15px, 2vw, 20px); color: var(--muted); max-width: 600px; margin: 0 auto 32px; }
   #slide-0 .author { font-size: 13px; color: var(--muted); margin-top: 16px; }
 
+  .mobile-only { display: none; }
+
   /* ── RESPONSIVE TWEAKS ── */
   @media (max-width: 768px) {
     .slide { padding: 20px 16px; justify-content: flex-start; overflow-y: auto; }
@@ -326,10 +328,13 @@
     .metric .number { font-size: 28px; }
     .metric { padding: 14px 10px; }
 
-    /* slide "quem construiu" empilha foto em cima */
-    #slide-9 > div { flex-direction: column; align-items: center; gap: 20px; }
-    #slide-9 img { width: 90px; height: 90px; }
+    /* slide "quem construiu" — layout mobile dedicado */
+    #slide-9 > div { flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+    #slide-9 img { width: 80px; height: 80px; }
     #slide-9 > div > div:first-child { padding-top: 0; }
+    #slide-9 .card-grid { display: none; }
+    #slide-9 .mobile-only { display: block !important; }
+    #slide-9 .desktop-only { display: none !important; }
 
     /* code block */
     .code-block { font-size: 12px; padding: 14px 16px; }
@@ -720,7 +725,8 @@
         <div class="tag">Quem construiu</div>
         <h2 style="margin-bottom:18px">Um QA que decidiu<br/><span class="accent">parar de ser gargalo.</span></h2>
 
-        <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:18px">
+        <!-- versão desktop -->
+        <p class="desktop-only" style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:18px">
           Hoje trabalho em um time onde <strong style="color:var(--text)">5 desenvolvedores usam Devin, Copilot e outras IAs</strong>
           para entregar demandas muito mais rápido do que antes.<br/><br/>
           O QA tradicional, que recebe a demanda pronta para testar no final,
@@ -733,7 +739,7 @@
           <strong style="color:var(--text)">com qualidade sem perder velocidade.</strong>
         </p>
 
-        <div class="card-grid cols-2" style="max-width:640px;margin-bottom:16px">
+        <div class="card-grid cols-2 desktop-only" style="max-width:640px;margin-bottom:16px">
           <div class="card" style="border-color:rgba(255,123,114,.3)">
             <div style="font-size:11px;font-weight:700;color:var(--pink);margin-bottom:6px;letter-spacing:.06em">A IA NÃO DIMINUIU</div>
             <div style="font-size:13px;color:var(--muted);line-height:1.5">a importância da qualidade.</div>
@@ -744,7 +750,21 @@
           </div>
         </div>
 
-        <div class="highlight-box" style="text-align:left;padding:14px 20px">
+        <!-- versão mobile — texto curto + 3 bullets -->
+        <div class="mobile-only" style="display:none;text-align:center">
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px">
+            Time de <strong style="color:var(--text)">5 devs com Devin e Copilot.</strong><br/>
+            QA que não evolui <strong style="color:var(--pink)">vira gargalo.</strong><br/>
+            Decidi mudar isso.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <div class="card" style="padding:12px 16px;font-size:13px;color:var(--muted)">🔧 Automação · CI/CD · Observabilidade</div>
+            <div class="card" style="padding:12px 16px;font-size:13px;color:var(--muted)">🤖 Agentes de IA aplicados a QA</div>
+            <div class="card" style="padding:12px 16px;font-size:13px;color:var(--muted)">📊 Qualidade sem perder velocidade</div>
+          </div>
+        </div>
+
+        <div class="highlight-box" style="padding:14px 20px">
           <div style="font-size:13px;color:var(--text);line-height:1.7;font-style:italic">
             "Estamos <strong style="color:var(--pink)">validando software</strong> ou estamos
             <strong style="color:var(--accent)">ajudando o time a entregar com confiança</strong>?"
