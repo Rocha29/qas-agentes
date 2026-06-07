@@ -298,11 +298,54 @@
 
   /* ── RESPONSIVE TWEAKS ── */
   @media (max-width: 768px) {
-    .slide { padding: 32px 24px; }
-    .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
-    .card-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
-    .flow { gap: 4px; }
-    .flow-step { min-width: 80px; padding: 8px 12px; font-size: 11px; }
+    .slide { padding: 20px 16px; justify-content: flex-start; overflow-y: auto; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; }
+    .lead { font-size: 15px; }
+    .tag { font-size: 11px; margin-bottom: 10px; }
+    .section-header { margin-bottom: 16px; }
+    .section-header p { font-size: 13px; }
+
+    /* grids viram 1 ou 2 colunas */
+    .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card-grid.cols-3 { grid-template-columns: 1fr; gap: 10px; }
+    .card-grid.cols-2 { grid-template-columns: 1fr; gap: 10px; }
+
+    /* agent cards menores */
+    .agent-card { padding: 12px 14px; }
+    .agent-card .icon { font-size: 20px; }
+    .agent-card .name { font-size: 12px; }
+    .agent-card .role { font-size: 11px; }
+
+    /* fluxo empilha verticalmente */
+    .flow { flex-direction: column; align-items: center; gap: 2px; }
+    .flow-arrow { transform: rotate(90deg); padding: 0; font-size: 14px; }
+    .flow-step { min-width: 160px; padding: 8px 14px; font-size: 12px; }
+
+    /* métricas menores */
+    .metric .number { font-size: 28px; }
+    .metric { padding: 14px 10px; }
+
+    /* slide "quem construiu" empilha foto em cima */
+    #slide-9 > div { flex-direction: column; align-items: center; gap: 20px; }
+    #slide-9 img { width: 90px; height: 90px; }
+    #slide-9 > div > div:first-child { padding-top: 0; }
+
+    /* code block */
+    .code-block { font-size: 12px; padding: 14px 16px; }
+
+    /* prob items */
+    .prob-item { padding: 12px 14px; }
+    .prob-item .text { font-size: 13px; }
+    .prob-item .sub  { font-size: 12px; }
+
+    /* highlight box */
+    .highlight-box { padding: 14px 16px; }
+
+    /* nav arrows ficam menores */
+    .nav-btn { width: 32px; height: 32px; font-size: 15px; }
+    #prev { left: 6px; }
+    #next { right: 6px; }
   }
 </style>
 </head>
