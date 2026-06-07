@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QA Agents — Apresentação</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --purple: #bc8cff;
+    --orange: #f0883e;
+    --pink: #ff7b72;
+    --yellow: #e3b341;
+    --text: #e6edf3;
+    --muted: #8b949e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── DECK ── */
+  .deck { width: 100%; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity .45s ease, transform .45s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── PROGRESS ── */
+  #progress {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: var(--accent);
+    transition: width .4s ease;
+    z-index: 100;
+  }
+
+  /* ── NAV DOTS ── */
+  #dots {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .3s, transform .3s;
+  }
+  .dot.active { background: var(--accent); transform: scale(1.4); }
+
+  /* ── NAV ARROWS ── */
+  .nav-btn {
+    position: fixed;
+    top: 50%; transform: translateY(-50%);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color .2s, border-color .2s;
+    z-index: 100;
+  }
+  .nav-btn:hover { color: var(--text); border-color: var(--accent); }
+  #prev { left: 16px; }
+  #next { right: 16px; }
+
+  /* ── SLIDE NUMBER ── */
+  #slide-num {
+    position: fixed;
+    top: 16px; right: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    z-index: 100;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .tag {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  h1 { font-size: clamp(32px, 5vw, 64px); font-weight: 700; line-height: 1.1; }
+  h2 { font-size: clamp(22px, 3vw, 38px); font-weight: 700; line-height: 1.2; }
+  h3 { font-size: 18px; font-weight: 600; }
+  p  { font-size: clamp(14px, 1.6vw, 18px); color: var(--muted); line-height: 1.7; }
+  .lead { font-size: clamp(16px, 2vw, 22px); color: var(--text); line-height: 1.6; }
+
+  .accent  { color: var(--accent); }
+  .green   { color: var(--green); }
+  .purple  { color: var(--purple); }
+  .orange  { color: var(--orange); }
+  .pink    { color: var(--pink); }
+  .yellow  { color: var(--yellow); }
+  .muted   { color: var(--muted); }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .card-grid {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 1100px;
+  }
+  .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  /* ── AGENT CARDS ── */
+  .agent-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color .2s, transform .2s;
+  }
+  .agent-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .agent-card .icon { font-size: 26px; }
+  .agent-card .name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .agent-card .role { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .agent-card .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 4px;
+    width: fit-content;
+  }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .flow-step {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 110px;
+  }
+  .flow-arrow {
+    color: var(--muted);
+    font-size: 18px;
+    padding: 0 6px;
+  }
+
+  /* ── METRIC CARDS ── */
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    text-align: center;
+  }
+  .metric .number {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .metric .label { font-size: 13px; color: var(--muted); }
+
+  /* ── PROBLEM ITEMS ── */
+  .prob-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .prob-item .icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .prob-item .text { font-size: 15px; color: var(--text); line-height: 1.5; }
+  .prob-item .sub  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text);
+    text-align: left;
+    width: 100%;
+    max-width: 700px;
+  }
+  .code-block .c-green  { color: var(--green); }
+  .code-block .c-blue   { color: var(--accent); }
+  .code-block .c-yellow { color: var(--yellow); }
+  .code-block .c-muted  { color: var(--muted); }
+  .code-block .c-purple { color: var(--purple); }
+
+  /* ── LIST CHECK ── */
+  .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; line-height: 1.5; }
+  .check-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── DIVIDER ── */
+  .divider { width: 48px; height: 3px; background: var(--accent); border-radius: 2px; margin: 16px auto; }
+
+  /* ── TOOLS PILL ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+  .pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--bg3);
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header { text-align: center; margin-bottom: 32px; }
+  .section-header h2 { margin-bottom: 10px; }
+  .section-header p { max-width: 600px; margin: 0 auto; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(88,166,255,.08), rgba(188,140,255,.08));
+    border: 1px solid rgba(88,166,255,.3);
+    border-radius: 12px;
+    padding: 20px 28px;
+    text-align: center;
+  }
+
+  /* ── COVER SPECIFIC ── */
+  #slide-0 { text-align: center; }
+  #slide-0 .logo { font-size: 56px; margin-bottom: 16px; }
+  #slide-0 h1 { margin-bottom: 16px; }
+  #slide-0 h1 span { color: var(--accent); }
+  #slide-0 .subtitle { font-size: clamp(15px, 2vw, 20px); color: var(--muted); max-width: 600px; margin: 0 auto 32px; }
+  #slide-0 .author { font-size: 13px; color: var(--muted); margin-top: 16px; }
+
+  /* ── RESPONSIVE TWEAKS ── */
+  @media (max-width: 768px) {
+    .slide { padding: 32px 24px; }
+    .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+    .flow { gap: 4px; }
+    .flow-step { min-width: 80px; padding: 8px 12px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="slide-num"></div>
+<div id="dots"></div>
+<button class="nav-btn" id="prev">‹</button>
+<button class="nav-btn" id="next">›</button>
+
+<div class="deck" id="deck">
+
+  <!-- ══ SLIDE 0 — CAPA ══ -->
+  <div class="slide" id="slide-0">
+    <div class="logo">🤖</div>
+    <div class="tag">Apresentação do Projeto</div>
+    <h1>QA <span>Agents</span></h1>
+    <p class="subtitle">8 agentes de IA especializados em qualidade de software — do planejamento até o relatório executivo, em uma única conversa.</p>
+    <div class="divider"></div>
+    <div class="pills">
+      <span class="pill">Claude Code</span>
+      <span class="pill">GitHub Copilot</span>
+      <span class="pill">Playwright</span>
+      <span class="pill">k6</span>
+      <span class="pill">RestAssured</span>
+      <span class="pill">Maestro</span>
+    </div>
+    <p class="author" style="margin-top:28px">Robson Rocha · 2026</p>
+  </div>
+
+  <!-- ══ SLIDE 1 — O PROBLEMA ══ -->
+  <div class="slide" id="slide-1">
+    <div class="section-header">
+      <div class="tag">O Problema</div>
+      <h2>QA hoje é lento, manual<br/>e depende de uma pessoa só</h2>
+      <p>Enquanto o time de dev acelera com IA, o QA ainda corre atrás com planilhas e checklists.</p>
+    </div>
+    <div class="card-grid cols-2" style="max-width:860px">
+      <div class="prob-item">
+        <div class="icon">⏳</div>
+        <div>
+          <div class="text">Análise de história leva horas</div>
+          <div class="sub">Ler, interpretar, mapear superfícies, criar BDDs — tudo feito à mão por uma pessoa.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">🧩</div>
+        <div>
+          <div class="text">Conhecimento concentrado</div>
+          <div class="sub">Quando o QA sênior está de férias, a qualidade cai. O conhecimento não escala.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">🔁</div>
+        <div>
+          <div class="text">Sem padronização entre squads</div>
+          <div class="sub">Cada squad testa diferente. Uns focam em web, outros em API, ninguém faz performance.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">📉</div>
+        <div>
+          <div class="text">Relatório executivo inexistente</div>
+          <div class="sub">Gestores não têm visibilidade de qualidade em tempo real. Os dados ficam espalhados.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2 — A SOLUÇÃO ══ -->
+  <div class="slide" id="slide-2">
+    <div class="section-header">
+      <div class="tag">A Solução</div>
+      <h2>Um time de agentes de IA<br/>que trabalha <span class="accent">junto com o seu time</span></h2>
+      <p>Você envia uma história. Os agentes fazem o planejamento, geram os testes, analisam performance e entregam um relatório — tudo automaticamente.</p>
+    </div>
+    <div class="highlight-box" style="max-width:700px; width:100%">
+      <div class="code-block" style="background:transparent; border:none; padding:0; font-size:13px">
+        <span class="c-muted"># Você digita isso no Copilot ou Claude:</span><br/>
+        <span class="c-yellow">HIST-001</span><br/><br/>
+        <span class="c-muted"># O que acontece em seguida:</span><br/>
+        <span class="c-green">✓</span> SIGMA-LEAD lê e analisa a história<br/>
+        <span class="c-green">✓</span> NEXUS-API valida contratos e BFF<br/>
+        <span class="c-green">✓</span> FLUX-PERF testa SLA e performance<br/>
+        <span class="c-green">✓</span> ARIA-WEB cobre a interface web<br/>
+        <span class="c-green">✓</span> KAUE-MOBILE cobre Android e iOS<br/>
+        <span class="c-green">✓</span> SIGMA-BIZ entrega o relatório executivo
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3 — OS 8 AGENTES ══ -->
+  <div class="slide" id="slide-3">
+    <div class="section-header">
+      <div class="tag">O Time</div>
+      <h2>8 agentes especializados</h2>
+      <p>Cada agente tem uma área de domínio, ferramentas específicas e critérios de entrega definidos.</p>
+    </div>
+    <div class="card-grid cols-4" style="max-width:1100px">
+      <div class="agent-card">
+        <div class="icon">🎯</div>
+        <div class="name">SIGMA-LEAD</div>
+        <div class="role">Orquestrador — lê histórias e distribui o trabalho</div>
+        <span class="badge" style="background:rgba(88,166,255,.15);color:var(--accent)">Líder</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">🌐</div>
+        <div class="name">ARIA-WEB</div>
+        <div class="role">Automação Web e WebView — Playwright, Cypress</div>
+        <span class="badge" style="background:rgba(63,185,80,.15);color:var(--green)">Web</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">📱</div>
+        <div class="name">KAUE-MOBILE</div>
+        <div class="role">Android, iOS, WebView — Maestro, Appium</div>
+        <span class="badge" style="background:rgba(188,140,255,.15);color:var(--purple)">Mobile</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">🔌</div>
+        <div class="name">NEXUS-API</div>
+        <div class="role">API e BFF — RestAssured, Postman, k6</div>
+        <span class="badge" style="background:rgba(240,136,62,.15);color:var(--orange)">API</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">⚡</div>
+        <div class="name">FLUX-PERF</div>
+        <div class="role">Performance e SLA — k6, JMeter, Grafana</div>
+        <span class="badge" style="background:rgba(227,179,65,.15);color:var(--yellow)">Perf</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">🏗️</div>
+        <div class="name">ATLAS-ARCH</div>
+        <div class="role">Arquitetura de qualidade e estratégia QA</div>
+        <span class="badge" style="background:rgba(88,166,255,.15);color:var(--accent)">Arch</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">🔍</div>
+        <div class="name">HELIX-EXPLORE</div>
+        <div class="role">Exploratório, edge cases e tendências</div>
+        <span class="badge" style="background:rgba(255,123,114,.15);color:var(--pink)">Explore</span>
+      </div>
+      <div class="agent-card">
+        <div class="icon">📊</div>
+        <div class="name">SIGMA-BIZ</div>
+        <div class="role">Relatório executivo, OKRs e métricas de qualidade</div>
+        <span class="badge" style="background:rgba(63,185,80,.15);color:var(--green)">Biz</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4 — COMO FUNCIONA (FLUXO) ══ -->
+  <div class="slide" id="slide-4">
+    <div class="section-header">
+      <div class="tag">Como Funciona</div>
+      <h2>Do input à entrega em <span class="accent">uma conversa</span></h2>
+      <p>O SIGMA-LEAD orquestra tudo. Você não precisa saber qual agente chamar — ele decide.</p>
+    </div>
+    <div style="width:100%;max-width:960px">
+      <div class="flow" style="margin-bottom:24px">
+        <div class="flow-step" style="border-color:var(--accent);color:var(--accent)">📝 História<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">HIST-001</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--accent);color:var(--accent)">🎯 SIGMA-LEAD<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">analisa e roteia</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--orange);color:var(--orange)">🔌 NEXUS-API<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">testa API/BFF</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--yellow);color:var(--yellow)">⚡ FLUX-PERF<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">valida SLA</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--green);color:var(--green)">🌐 ARIA-WEB<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">testa UI</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--purple);color:var(--purple)">📱 KAUE<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">testa mobile</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--pink);color:var(--pink)">🔍 HELIX<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">edge cases</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--green);color:var(--green)">📊 SIGMA-BIZ<br/><span style="font-size:10px;font-weight:400;color:var(--muted)">relatório</span></div>
+      </div>
+      <div class="card-grid cols-3" style="max-width:960px">
+        <div class="card">
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">🔑 Regra de ouro</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">API sempre antes de UI. UI estável antes de mobile. Nunca em paralelo.</div>
+        </div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">🧠 Inteligência de roteamento</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">SIGMA-LEAD decide quais agentes são necessários com base no tipo e risco da história.</div>
+        </div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px">📦 Entrega consolidada</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">BDDs, plano de testes, findings, critérios de done e relatório executivo — em uma resposta.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5 — COMO USAR (COPILOT) ══ -->
+  <div class="slide" id="slide-5">
+    <div class="section-header">
+      <div class="tag">Como Usar</div>
+      <h2>Funciona onde você já trabalha</h2>
+      <p>Sem instalar nada novo. Integra com as ferramentas que o time já usa.</p>
+    </div>
+    <div class="card-grid cols-3" style="max-width:960px">
+      <div class="card" style="border-color:rgba(88,166,255,.4)">
+        <div style="font-size:28px;margin-bottom:12px">🌐</div>
+        <h3 style="margin-bottom:8px;color:var(--accent)">GitHub Copilot Web</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          1. Acesse <strong style="color:var(--text)">github.com/copilot</strong><br/>
+          2. Selecione o repositório<br/>
+          3. Digite <strong style="color:var(--yellow)">HIST-001</strong><br/>
+          4. Receba o plano QA completo
+        </div>
+        <span class="badge" style="background:rgba(88,166,255,.15);color:var(--accent);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600">Zero instalação</span>
+      </div>
+      <div class="card" style="border-color:rgba(63,185,80,.4)">
+        <div style="font-size:28px;margin-bottom:12px">💻</div>
+        <h3 style="margin-bottom:8px;color:var(--green)">VS Code + Copilot</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          1. Abra a pasta do projeto<br/>
+          2. <strong style="color:var(--text)">Cmd+Option+I</strong> → Copilot Chat<br/>
+          3. Digite <strong style="color:var(--yellow)">@workspace HIST-001</strong><br/>
+          4. Agentes respondem inline
+        </div>
+        <span class="badge" style="background:rgba(63,185,80,.15);color:var(--green);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600">No editor</span>
+      </div>
+      <div class="card" style="border-color:rgba(188,140,255,.4)">
+        <div style="font-size:28px;margin-bottom:12px">⌨️</div>
+        <h3 style="margin-bottom:8px;color:var(--purple)">Claude Code (CLI)</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          1. <code style="color:var(--text);background:var(--bg3);padding:2px 6px;border-radius:4px">claude --system-prompt agents/SIGMA-LEAD.md</code><br/>
+          2. Digite <strong style="color:var(--yellow)">HIST-001</strong><br/>
+          3. Plano gerado no terminal
+        </div>
+        <span class="badge" style="background:rgba(188,140,255,.15);color:var(--purple);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600">Power users</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6 — RESULTADOS DA POC ══ -->
+  <div class="slide" id="slide-6">
+    <div class="section-header">
+      <div class="tag">Resultados — POC Completa</div>
+      <h2>Validado em ambiente real<br/><span class="green">com a aplicação Lojinha</span></h2>
+      <p>Três agentes executaram automação ponta a ponta em uma única sessão.</p>
+    </div>
+    <div class="card-grid cols-4" style="max-width:1000px;margin-bottom:24px">
+      <div class="metric">
+        <div class="number green">17/17</div>
+        <div class="label">Testes Web passando<br/><span style="font-size:11px">Playwright + TypeScript</span></div>
+      </div>
+      <div class="metric">
+        <div class="number accent">17/17</div>
+        <div class="label">Testes de API passando<br/><span style="font-size:11px">RestAssured + Java 17</span></div>
+      </div>
+      <div class="metric">
+        <div class="number purple">4</div>
+        <div class="label">Pipelines CI/CD ativos<br/><span style="font-size:11px">GitHub Actions</span></div>
+      </div>
+      <div class="metric">
+        <div class="number yellow">8</div>
+        <div class="label">Agentes orquestrados<br/><span style="font-size:11px">em uma conversa</span></div>
+      </div>
+    </div>
+    <div class="card-grid cols-3" style="max-width:900px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">✅ WEB — ARIA-WEB</div>
+        <div style="font-size:13px;color:var(--muted)">Login, CRUD de produto, validações de formulário, mensagens de erro.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px">✅ API — NEXUS-API</div>
+        <div style="font-size:13px;color:var(--muted)">POST /auth/login, CRUD /produto, validação JWT, status codes e contrato.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚠️ PERF — FLUX-PERF</div>
+        <div style="font-size:13px;color:var(--muted)">Smoke verde. Stress identificou gargalo acima de 200 usuários — alerta de SLA registrado.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 7 — DIFERENCIAL ══ -->
+  <div class="slide" id="slide-7">
+    <div class="section-header">
+      <div class="tag">Diferencial</div>
+      <h2>O que torna este projeto <span class="accent">único</span></h2>
+    </div>
+    <div class="card-grid cols-2" style="max-width:860px">
+      <div class="prob-item">
+        <div class="icon">🇧🇷</div>
+        <div>
+          <div class="text">Fundamentado em referências brasileiras</div>
+          <div class="sub">Júlio de Lima, Fernando Papito, QAzando, Pessoni, Walmyr — as maiores referências de QA do Brasil.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">🔁</div>
+        <div>
+          <div class="text">Conhecimento que não vai embora</div>
+          <div class="sub">O agente carrega o know-how do time. Quando o sênior sai, o conhecimento fica no sistema.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">📐</div>
+        <div>
+          <div class="text">Padroniza sem engessar</div>
+          <div class="sub">Cada agente segue regras claras, mas adapta a abordagem ao contexto da história e do risco.</div>
+        </div>
+      </div>
+      <div class="prob-item">
+        <div class="icon">🔌</div>
+        <div>
+          <div class="text">Integra com qualquer stack</div>
+          <div class="sub">Copilot, Claude, Devin, Continue, Cline — os agentes funcionam onde o time já trabalha.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 8 — PRÓXIMOS PASSOS ══ -->
+  <div class="slide" id="slide-8">
+    <div class="section-header">
+      <div class="tag">Próximos Passos</div>
+      <h2>O que vem por aí</h2>
+      <p>A base está construída e validada. Agora é evoluir.</p>
+    </div>
+    <div class="card-grid cols-3" style="max-width:960px">
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">📚</div>
+        <h3 style="margin-bottom:8px;color:var(--accent)">Base de Conhecimento RAG</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Coletar e indexar os conteúdos dos autores de referência para que os agentes respondam com fontes concretas.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">🔗</div>
+        <h3 style="margin-bottom:8px;color:var(--green)">Integração com Jira / Linear</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">SIGMA-BIZ puxa histórias diretamente do board, sem precisar copiar e colar manualmente.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">📊</div>
+        <h3 style="margin-bottom:8px;color:var(--purple)">Dashboard de Qualidade</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Relatório automático por sprint com cobertura, SLA, bugs encontrados e tendências — gerado pelo CI.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">🤝</div>
+        <h3 style="margin-bottom:8px;color:var(--orange)">Multi-squad</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Levar os agentes para outros squads do time, adaptando os prompts ao contexto de cada produto.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">🧪</div>
+        <h3 style="margin-bottom:8px;color:var(--yellow)">Agente de Mutação</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Testes de mutação automatizados para validar a qualidade dos próprios testes gerados pelos agentes.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px;margin-bottom:10px">📱</div>
+        <h3 style="margin-bottom:8px;color:var(--pink)">Expansão Mobile</h3>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Cobrir iOS com Maestro e adicionar testes de acessibilidade mobile ao fluxo do KAUE-MOBILE.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 9 — ENCERRAMENTO ══ -->
+  <div class="slide" id="slide-9">
+    <div style="text-align:center;max-width:700px">
+      <div style="font-size:52px;margin-bottom:20px">🚀</div>
+      <div class="tag">Conclusão</div>
+      <h2 style="margin-bottom:16px">QA que <span class="accent">escala</span> com o time,<br/>não que freia.</h2>
+      <div class="divider"></div>
+      <p class="lead" style="margin:24px 0;color:var(--muted)">
+        Menos tempo em tarefas repetitivas.<br/>
+        Mais tempo em estratégia, exploração e qualidade real.
+      </p>
+      <div class="card-grid cols-3" style="margin:28px 0">
+        <div class="metric" style="padding:16px">
+          <div class="number green" style="font-size:28px">8</div>
+          <div class="label">Agentes prontos</div>
+        </div>
+        <div class="metric" style="padding:16px">
+          <div class="number accent" style="font-size:28px">34</div>
+          <div class="label">Testes validados</div>
+        </div>
+        <div class="metric" style="padding:16px">
+          <div class="number purple" style="font-size:28px">4</div>
+          <div class="label">Pipelines CI/CD</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:var(--muted)">
+        Repositório: <strong style="color:var(--accent)">github.com/Rocha29/qas-agentes</strong>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  const progress = document.getElementById('progress');
+  const slideNum = document.getElementById('slide-num');
+  const dotsEl   = document.getElementById('dots');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n, reverse = false) {
+    if (n < 0 || n >= total) return;
+    const prev = current;
+    slides[prev].classList.remove('active');
+    if (reverse) {
+      slides[prev].style.transform = 'translateX(60px)';
+    } else {
+      slides[prev].classList.add('exit');
+    }
+    setTimeout(() => {
+      slides[prev].classList.remove('exit');
+      slides[prev].style.transform = '';
+    }, 450);
+
+    current = n;
+    slides[current].classList.add('active');
+    update();
+  }
+
+  function update() {
+    const pct = total <= 1 ? 100 : (current / (total - 1)) * 100;
+    progress.style.width = pct + '%';
+    slideNum.textContent = (current + 1) + ' / ' + total;
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1, true));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') goTo(current - 1, true);
+    if (e.key === 'f' || e.key === 'F') document.documentElement.requestFullscreen?.();
+  });
+
+  // Touch support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (dx < -40) goTo(current + 1);
+    if (dx >  40) goTo(current - 1, true);
+  });
+
+  // Init
+  slides[0].classList.add('active');
+  update();
+</script>
+</body>
+</html>
