@@ -300,57 +300,63 @@
 
   /* ── RESPONSIVE TWEAKS ── */
   @media (max-width: 768px) {
-    .slide { padding: 20px 16px; justify-content: flex-start; overflow-y: auto; }
-    h1 { font-size: 28px; }
-    h2 { font-size: 20px; }
-    .lead { font-size: 15px; }
-    .tag { font-size: 11px; margin-bottom: 10px; }
-    .section-header { margin-bottom: 16px; }
-    .section-header p { font-size: 13px; }
+    .slide { padding: 52px 14px 48px; justify-content: center; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 19px; }
+    .lead { font-size: 14px; }
+    .tag { font-size: 10px; margin-bottom: 8px; }
+    .section-header { margin-bottom: 14px; }
+    .section-header p { font-size: 12px; }
 
-    /* grids viram 1 ou 2 colunas */
-    .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .card-grid.cols-3 { grid-template-columns: 1fr; gap: 10px; }
-    .card-grid.cols-2 { grid-template-columns: 1fr; gap: 10px; }
+    /* grids — tudo vira 2 colunas; só cols-3 no slide de próx. passos vira 2 */
+    .card-grid { gap: 8px; }
+    .card-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 
-    /* agent cards menores */
-    .agent-card { padding: 12px 14px; }
-    .agent-card .icon { font-size: 20px; }
-    .agent-card .name { font-size: 12px; }
-    .agent-card .role { font-size: 11px; }
+    /* agent cards compactos */
+    .agent-card { padding: 10px 12px; gap: 4px; }
+    .agent-card .icon { font-size: 18px; }
+    .agent-card .name { font-size: 11px; }
+    .agent-card .role { font-size: 10px; display: none; }
+    .agent-card .badge { font-size: 9px; padding: 2px 6px; }
 
-    /* fluxo empilha verticalmente */
-    .flow { flex-direction: column; align-items: center; gap: 2px; }
-    .flow-arrow { transform: rotate(90deg); padding: 0; font-size: 14px; }
-    .flow-step { min-width: 160px; padding: 8px 14px; font-size: 12px; }
+    /* fluxo — scrolla horizontal */
+    .flow { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 8px; width: 100%; }
+    .flow-step { min-width: 80px; padding: 8px 10px; font-size: 10px; flex-shrink: 0; }
+    .flow-arrow { font-size: 12px; padding: 0 2px; flex-shrink: 0; }
 
-    /* métricas menores */
-    .metric .number { font-size: 28px; }
-    .metric { padding: 14px 10px; }
+    /* métricas */
+    .metric .number { font-size: 26px; }
+    .metric { padding: 12px 8px; }
+    .metric .label { font-size: 11px; }
 
-    /* slide "quem construiu" — layout mobile dedicado */
-    #slide-9 > div { flex-direction: column; align-items: center; gap: 16px; text-align: center; }
-    #slide-9 img { width: 80px; height: 80px; }
+    /* cards genéricos */
+    .card { padding: 12px 14px; }
+
+    /* prob items */
+    .prob-item { padding: 10px 12px; gap: 10px; }
+    .prob-item .icon { font-size: 18px; }
+    .prob-item .text { font-size: 12px; }
+    .prob-item .sub  { font-size: 11px; }
+
+    /* code block */
+    .code-block { font-size: 11px; padding: 12px 14px; }
+
+    /* highlight box */
+    .highlight-box { padding: 12px 14px; }
+
+    /* slide "quem construiu" */
+    #slide-9 > div { flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+    #slide-9 img { width: 72px; height: 72px; }
     #slide-9 > div > div:first-child { padding-top: 0; }
-    #slide-9 .card-grid { display: none; }
     #slide-9 .mobile-only { display: block !important; }
     #slide-9 .desktop-only { display: none !important; }
 
-    /* code block */
-    .code-block { font-size: 12px; padding: 14px 16px; }
-
-    /* prob items */
-    .prob-item { padding: 12px 14px; }
-    .prob-item .text { font-size: 13px; }
-    .prob-item .sub  { font-size: 12px; }
-
-    /* highlight box */
-    .highlight-box { padding: 14px 16px; }
-
-    /* nav arrows ficam menores */
-    .nav-btn { width: 32px; height: 32px; font-size: 15px; }
-    #prev { left: 6px; }
-    #next { right: 6px; }
+    /* nav arrows */
+    .nav-btn { width: 30px; height: 30px; font-size: 14px; }
+    #prev { left: 4px; }
+    #next { right: 4px; }
   }
 </style>
 </head>
