@@ -81,24 +81,102 @@ claude --system-prompt ~/qa-agents/agents/NEXUS.md "Revise os testes de API dest
 
 ### GitHub Copilot — receita de bolo
 
-**Funciona em:** VS Code, JetBrains, Visual Studio, GitHub.com, GitHub Mobile.
+> **O que você vai conseguir fazer:** digitar `HIST-001` no Copilot e ele vai orquestrar todos os agentes QA automaticamente, do SIGMA-LEAD até o relatório final do SIGMA-BIZ.
+
+---
+
+#### 🌐 Opção 1 — GitHub Copilot Web (github.com/copilot)
+
+Use quando quiser rodar a orquestração completa direto no navegador, sem precisar abrir o VS Code.
+
+**Pré-requisito:** ter o GitHub Copilot ativo na sua conta (plano Free já inclui).
 
 **Passo a passo:**
 
-1. No projeto onde você quer o agente, crie a pasta `.github/` se não existir
-2. Crie o arquivo `.github/copilot-instructions.md`
-3. Cole o conteúdo do agente desejado (ex: `agents/ARIA.md`) nesse arquivo
-4. Pronto — o Copilot Chat vai seguir o persona em todas as conversas do repo
+1. Acesse [github.com/copilot](https://github.com/copilot) e faça login
+2. No seletor de repositório (canto superior esquerdo do chat), escolha **`Rocha29/qas-agentes`**
+3. O Copilot vai carregar automaticamente o arquivo `.github/copilot-instructions.md` deste repositório — ele é o "cérebro" que ativa o SIGMA-LEAD
+4. No campo de mensagem, digite apenas o número da história:
 
-```bash
-# Exemplo: ativar ARIA (Web) em um projeto existente
-mkdir -p meu-projeto/.github
-cp ~/qa-agents/agents/ARIA.md meu-projeto/.github/copilot-instructions.md
+```
+HIST-001
 ```
 
-**Dica importante:** O Copilot Code Review lê apenas os primeiros **4.000 caracteres** do arquivo. Se o prompt do agente for longo, coloque as instruções mais críticas no topo.
+5. Pronto. O Copilot vai:
+   - Ler o arquivo `historias/HIST-001.md` do repositório
+   - Ativar o SIGMA-LEAD como orquestrador
+   - Chamar cada agente em sequência (NEXUS-API → FLUX-PERF → ARIA-WEB → KAUE-MOBILE → HELIX-EXPLORE → SIGMA-BIZ)
+   - Entregar um relatório QA consolidado ao final
 
-O arquivo `.github/copilot-instructions.md` é enviado automaticamente em toda mensagem do Copilot Chat — funciona como um system prompt persistente para o repositório.
+**Outras formas de disparar:**
+
+| O que digitar | O que acontece |
+|---------------|----------------|
+| `HIST-001` | Lê o arquivo da história do repo e processa |
+| `Começar análise QA` | Lista as histórias disponíveis e pergunta qual analisar |
+| *(cola o markdown da história direto)* | Processa o conteúdo colado sem precisar do arquivo |
+
+**Dica:** se o Copilot não responder como esperado, verifique se o repositório correto está selecionado no seletor — ele precisa ser `Rocha29/qas-agentes` para carregar as instruções.
+
+---
+
+#### 💻 Opção 2 — GitHub Copilot no VS Code
+
+Use quando estiver com o VS Code aberto e quiser rodar a orquestração sem sair do editor.
+
+**Pré-requisito:** extensões `GitHub.copilot` e `GitHub.copilot-chat` instaladas.
+
+**Passo a passo:**
+
+1. Abra o VS Code
+2. Clone ou abra a pasta `qas-agentes` (este repositório):
+```bash
+git clone https://github.com/Rocha29/qas-agentes.git
+cd qas-agentes
+code .
+```
+3. O VS Code vai detectar automaticamente o arquivo `.github/copilot-instructions.md` na raiz do projeto
+4. Abra o Copilot Chat com o atalho `Ctrl+Alt+I` (Windows/Linux) ou `Cmd+Option+I` (Mac)
+5. No chat, certifique-se de que o **contexto do workspace está ativo** — clique no ícone de clipe 📎 e selecione "Workspace" se disponível
+6. Digite o número da história:
+
+```
+HIST-001
+```
+
+7. O Copilot vai ler as instruções do `.github/copilot-instructions.md`, carregar os agentes de `agents/` e entregar o planejamento QA completo.
+
+**Atalhos úteis no VS Code:**
+
+| Atalho | O que faz |
+|--------|-----------|
+| `Ctrl+Alt+I` / `Cmd+Option+I` | Abre o Copilot Chat |
+| `Ctrl+Shift+I` / `Cmd+Shift+I` | Abre o Copilot Edits (modo de edição de código) |
+| `@workspace` no chat | Garante que o Copilot lê os arquivos do projeto |
+
+**Dica:** se o Copilot não estiver seguindo o persona do SIGMA-LEAD, tente começar a mensagem com `@workspace HIST-001` — isso força ele a ler os arquivos do repositório antes de responder.
+
+---
+
+#### ⚠️ Não aceite sugestões automáticas do Copilot que modifiquem `.github/copilot-instructions.md`
+
+O Copilot às vezes propõe alterações nesse arquivo. **Rejeite sempre** (clique em "Discard") — o arquivo atual está correto e qualquer modificação automática pode introduzir duplicatas ou quebrar o fluxo de orquestração.
+
+---
+
+#### Usando um agente individual (sem orquestração)
+
+Se quiser ativar apenas um agente específico em outro projeto seu (sem o SIGMA-LEAD):
+
+```bash
+# Exemplo: ativar ARIA-WEB em um projeto existente
+mkdir -p meu-projeto/.github
+cp ~/qas-agentes/agents/ARIA-WEB.md meu-projeto/.github/copilot-instructions.md
+```
+
+Abra esse projeto no VS Code e o Copilot vai responder como ARIA-WEB automaticamente.
+
+**Dica importante:** o Copilot Code Review lê apenas os primeiros **4.000 caracteres** do arquivo. Coloque as instruções mais críticas no topo do prompt do agente.
 
 ---
 
